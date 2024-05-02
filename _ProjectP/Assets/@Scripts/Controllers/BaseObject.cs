@@ -11,6 +11,19 @@ public class BaseObject : InitBase
     public SkeletonAnimation SkeletonAnim { get; private set; }
     public Rigidbody2D RigidBody { get; private set; }
 
+    public float ColliderRadius { get { return Collider != null? Collider.radius: 0.0f; } }
+
+    bool _lookLeft = true;
+    public bool LookLeft
+    {
+        get { return _lookLeft; }
+        set
+        {
+            _lookLeft = value;
+            Flip(!value);
+        }
+    }
+
     public override bool Init()
     {
         if (base.Init() == false)
@@ -22,4 +35,32 @@ public class BaseObject : InitBase
 
         return true;
     }
+
+    #region Spine
+    protected virtual void UpdateAnimation() { }
+
+    public void PlayAnimation(int trackIndex, string AnimName, bool loop)
+    {
+        if (SkeletonAnim == null)
+            return;
+
+        SkeletonAnim.AnimationState.SetAnimation(trackIndex, AnimName, loop);
+    }
+
+    public void AddAnimation(int trackIndex, string AnimName, bool loop, float delay)
+    {
+        if (SkeletonAnim == null)
+            return;
+
+        SkeletonAnim.AnimationState.AddAnimation(trackIndex, AnimName, loop, delay);
+    }
+
+    public void Flip(bool flag)
+    {
+        if (SkeletonAnim == null)
+            return;
+
+        SkeletonAnim.Skeleton.ScaleX = flag ? -1 : 1;
+    }
+    #endregion
 }
