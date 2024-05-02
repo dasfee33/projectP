@@ -10,6 +10,10 @@ public class GameScene : BaseScene
 
         SceneType = Define.Scenes.GameScene;
 
+        GameObject map = Managers.Resource.Instantiate("BaseMap");
+        map.transform.position = Vector3.zero;
+        map.name = "@BaseMap";
+
         return true;
     }
 
