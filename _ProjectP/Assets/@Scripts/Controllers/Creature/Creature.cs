@@ -54,4 +54,62 @@ public class Creature : BaseObject
                 break;
         }
     }
+
+    #region AI
+    public float UpdateAITick { get; protected set; } = 0.0f;
+
+    protected IEnumerator CoUpdateAI()
+    {
+        while (true)
+        {
+            switch (CreatureState)
+            {
+                case CreatureStates.Idle:
+                    UpdateIdle();
+                    break;
+                case CreatureStates.Move:
+                    UpdateMove();
+                    break;
+                case CreatureStates.Skill:
+                    UpdateSkill();
+                    break;
+                case CreatureStates.Dead:
+                    UpdateDead();
+                    break;
+            }
+
+            if (UpdateAITick > 0)
+                yield return new WaitForSeconds(UpdateAITick);
+            else
+                yield return null;
+        }
+    }
+    protected virtual void UpdateIdle() { }
+    protected virtual void UpdateMove() { }
+    protected virtual void UpdateSkill() { }
+    protected virtual void UpdateDead() { }
+    #endregion
+
+    #region Wait
+    protected Coroutine _coWait;
+
+    protected void StartWait(float seconds)
+    {
+        CancelWait();
+        _coWait = StartCoroutine(CoWait(seconds));
+    }
+
+    IEnumerator CoWait(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        _coWait = null;
+    }
+
+    protected void CancelWait()
+    {
+        if (_coWait != null)
+            StopCoroutine(_coWait);
+        _coWait = null;
+    }
+    #endregion
 }

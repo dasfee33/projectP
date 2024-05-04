@@ -51,6 +51,13 @@ public static class Define
         Dead,
     }
 
+    public enum JoystickStates
+    {
+        PointerDown,
+        PointerUp,
+        Drag,
+    }
+
     public static class AnimName
     {
         public const string IDLE = "idle";

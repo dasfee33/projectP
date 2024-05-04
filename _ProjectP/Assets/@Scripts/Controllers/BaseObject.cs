@@ -12,6 +12,7 @@ public class BaseObject : InitBase
     public Rigidbody2D RigidBody { get; private set; }
 
     public float ColliderRadius { get { return Collider != null? Collider.radius: 0.0f; } }
+    public Vector3 CenterPosition { get { return transform.position + Vector3.up * ColliderRadius; } }
 
     bool _lookLeft = true;
     public bool LookLeft
@@ -61,6 +62,14 @@ public class BaseObject : InitBase
             return;
 
         SkeletonAnim.Skeleton.ScaleX = flag ? -1 : 1;
+    }
+
+    public void ObjectTranslate(Vector3 dir)
+    {
+        transform.Translate(dir);
+
+        if (dir.x < 0) LookLeft = true;
+        else if(dir.x > 0) LookLeft = false;
     }
     #endregion
 }

@@ -27,6 +27,14 @@ public static class Extension
             Managers.Resource.Destroy(child.gameObject);
     }
 
+    public static void ObjectTranslate(this Transform trans, Vector3 dir)
+    {
+        BaseObject bo = trans.gameObject.GetComponent<BaseObject>();
+
+        if (bo != null)
+            bo.ObjectTranslate(dir);
+    }
+
     public static void Shuffle<T>(this IList<T> list)
     {
         int n = list.Count;
