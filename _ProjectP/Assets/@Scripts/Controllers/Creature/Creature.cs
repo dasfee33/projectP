@@ -7,8 +7,6 @@ using static Define;
 
 public class Creature : BaseObject
 {
-    public float Speed { get; protected set; } = 1.0f;
-
     public Data.CreatureData CreatureData { get; protected set; }
     public CreatureTypes CreatureType { get; protected set; } = CreatureTypes.None;
 
@@ -71,6 +69,13 @@ public class Creature : BaseObject
         SkeletonAnim.skeletonDataAsset = Managers.Resource.Load<SkeletonDataAsset>(CreatureData.SkeletonDataID);
         SkeletonAnim.Initialize(true);
 
+        // Register AnimEvent
+        if (SkeletonAnim.AnimationState != null)
+        {
+            SkeletonAnim.AnimationState.Event -= OnAnimEventHandler;
+            SkeletonAnim.AnimationState.Event += OnAnimEventHandler;
+        }
+
         // Spine SkeletonAnimation은 SpriteRenderer 를 사용하지 않고 MeshRenderer을 사용함.
         // 그렇기떄문에 2D Sort Axis가 안먹히게 되는데 SortingGroup을 SpriteRenderer, MeshRenderer을같이 계산함.
         SortingGroup sg = Util.GetOrAddComponent<SortingGroup>(gameObject);
@@ -113,6 +118,22 @@ public class Creature : BaseObject
         }
     }
 
+    public void ChangeColliderSize(ColliderSizes size = ColliderSizes.Normal)
+    {
+        switch (size)
+        {
+            case ColliderSizes.Small:
+                Collider.radius = CreatureData.ColliderRadius * 0.8f;
+                break;
+            case ColliderSizes.Normal:
+                Collider.radius = CreatureData.ColliderRadius;
+                break;
+            case ColliderSizes.Big:
+                Collider.radius = CreatureData.ColliderRadius * 1.2f;
+                break;
+        }
+    }
+
     #region AI
     public float UpdateAITick { get; protected set; } = 0.0f;
 
@@ -146,6 +167,36 @@ public class Creature : BaseObject
     protected virtual void UpdateMove() { }
     protected virtual void UpdateSkill() { }
     protected virtual void UpdateDead() { }
+    #endregion
+
+    #region Battle
+    public override void OnDamaged(BaseObject attacker)
+    {
+        base.OnDamaged(attacker);
+
+        if (attacker.IsValid() == false)
+            return;
+
+        Creature creature = attacker as Creature;
+        if (creature == null)
+            return;
+
+        float finalDamage = creature.Atk; // TODO
+        Hp = Mathf.Clamp(Hp - finalDamage, 0, MaxHp);
+
+        if (Hp <= 0)
+        {
+            OnDead(attacker);
+            CreatureState = CreatureStates.Dead;
+        }
+    }
+
+    public override void OnDead(BaseObject attacker)
+    {
+        base.OnDead(attacker);
+
+
+    }
     #endregion
 
     #region Wait

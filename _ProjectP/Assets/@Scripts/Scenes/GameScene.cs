@@ -16,11 +16,15 @@ public class GameScene : BaseScene
         map.transform.position = Vector3.zero;
         map.name = "@BaseMap";
 
+        PlayerCamp camp = Managers.Object.Spawn<PlayerCamp>(new Vector3(-10, -5), 0);
+
         Player player = Managers.Object.Spawn<Player>(new Vector3(-10, -5), HERO_KNIGHT_ID);
-        //player.CreatureState = CreatureStates.Move;
+        Player player2 = Managers.Object.Spawn<Player>(new Vector3(-5, -5), HERO_KNIGHT_ID);
+        Player player3 = Managers.Object.Spawn<Player>(new Vector3(-15, -5), HERO_KNIGHT_ID);
+
 
         CameraController camera = Camera.main.GetOrAddComponent<CameraController>();
-        camera.Target = player;
+        camera.Target = camp;
 
         Managers.UI.ShowBaseUI<UI_Joystick>();
 

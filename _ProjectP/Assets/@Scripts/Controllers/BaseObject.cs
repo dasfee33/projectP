@@ -4,6 +4,7 @@ using UnityEngine;
 using Spine.Unity;
 using static Define;
 using UnityEngine.Rendering;
+using Spine;
 
 public class BaseObject : InitBase
 {
@@ -40,6 +41,18 @@ public class BaseObject : InitBase
         return true;
     }
 
+    #region Battle
+    public virtual void OnDamaged(BaseObject attacker)
+    {
+
+    }
+
+    public virtual void OnDead(BaseObject attacker)
+    {
+
+    }
+    #endregion
+
     #region Spine
 
     protected virtual void SetSpineAnimation(string dataLabel, int sortingOrder)
@@ -57,6 +70,19 @@ public class BaseObject : InitBase
     }
 
     protected virtual void UpdateAnimation() { }
+
+    public void SetRigidBodyVelocity(Vector2 velocity)
+    {
+        if (RigidBody == null)
+            return;
+
+        RigidBody.velocity = velocity;
+
+        if (velocity.x < 0)
+            LookLeft = true;
+        else if (velocity.x > 0)
+            LookLeft = false;
+    }
 
     public void PlayAnimation(int trackIndex, string AnimName, bool loop)
     {
@@ -82,12 +108,9 @@ public class BaseObject : InitBase
         SkeletonAnim.Skeleton.ScaleX = flag ? -1 : 1;
     }
 
-    public void ObjectTranslate(Vector3 dir)
+    public virtual void OnAnimEventHandler(TrackEntry trackEntry, Spine.Event e)
     {
-        transform.Translate(dir);
-
-        if (dir.x < 0) LookLeft = true;
-        else if(dir.x > 0) LookLeft = false;
+        Debug.Log("OnAnimEventHandler");
     }
     #endregion
 }

@@ -8,6 +8,7 @@ public class ObjectManager
     public List<Player> Players { get; } = new List<Player>();
     public List<Monster> Monsters { get; } = new List<Monster>();
     public List<Env> Envs { get; } = new List<Env>();
+    public PlayerCamp Camp { get; private set; }
 
     #region Roots
     public Transform GetRootTransform(string name)
@@ -81,6 +82,10 @@ public class ObjectManager
             env.SetInfo(templateID);
 
         }
+        else if(obj.ObjectType == ObjectTypes.PlayerCamp)
+        {
+            Camp = go.GetComponent<PlayerCamp>();
+        }
 
         return obj as T;
     }
@@ -112,6 +117,10 @@ public class ObjectManager
         {
             Env env = obj as Env;
             Envs.Remove(env);
+        }
+        else if (obj.ObjectType == ObjectTypes.PlayerCamp)
+        {
+            Camp = null;
         }
 
         Managers.Resource.Destroy(obj.gameObject);

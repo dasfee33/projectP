@@ -32,6 +32,7 @@ public static class Define
         Creature,
         Projectile,
         Env,
+        PlayerCamp,
     }
 
     public enum CreatureTypes
@@ -51,6 +52,15 @@ public static class Define
         Dead,
     }
 
+    public enum PlayerMoveStates
+    {
+        None,
+        TargetMonster,
+        CollectEnv,
+        Return,
+        ForceMove,
+    }
+
     public enum EnvStates
     {
         Idle,
@@ -58,11 +68,33 @@ public static class Define
         Dead
     }
 
+    public enum Layers
+    {
+        Default = 0,
+        TransparentFX = 1,
+        IgnoreRaycast = 2,
+        Dummy1 = 3,
+        Water = 4,
+        UI = 5,
+        Player = 6,
+        Monster = 7,
+        GatheringResource = 8,
+        Obstacle = 9,
+        Projectile = 10,
+    }
+
     public enum JoystickStates
     {
         PointerDown,
         PointerUp,
         Drag,
+    }
+
+    public enum ColliderSizes
+    {
+        Small,
+        Normal,
+        Big,
     }
 
     public const int CAMERA_PROJECTION_SIZE = 12;
