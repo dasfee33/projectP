@@ -18,11 +18,13 @@ public class GameScene : BaseScene
 
         PlayerCamp camp = Managers.Object.Spawn<PlayerCamp>(new Vector3(-10, -5), 0);
 
-        Player player = Managers.Object.Spawn<Player>(new Vector3(-10, -5), HERO_KNIGHT_ID);
-        Player player2 = Managers.Object.Spawn<Player>(new Vector3(-5, -5), HERO_KNIGHT_ID);
-        Player player3 = Managers.Object.Spawn<Player>(new Vector3(-15, -5), HERO_KNIGHT_ID);
+        for(int i = 0; i < 5; i++)
+        {
+            int playerTemplateID = HERO_KNIGHT_ID + Random.Range(0, 4);
 
-
+            Player player = Managers.Object.Spawn<Player>(new Vector3(Random.Range(-10, -5), Random.Range(-10, -5)), playerTemplateID);
+        }
+        
         CameraController camera = Camera.main.GetOrAddComponent<CameraController>();
         camera.Target = camp;
 

@@ -28,22 +28,50 @@ namespace Data
         public float AtkRate;
         public float DefRate;
         public float MoveSpeedRate;
+        public string IconImage; // ADD
         public string SkeletonDataID;
         public string AnimatorName;
         public List<int> SkillIdList = new List<int>();
         public int DropItemId;
     }
+    #endregion
+
+    #region MonsterData
+    public class MonsterData : CreatureData
+    {
+    }
 
     [Serializable]
-    public class CreatureDataLoader : ILoader<int, CreatureData>
+    public class MonsterDataLoader : ILoader<int, MonsterData>
     {
-        public List<CreatureData> creatures = new List<CreatureData>();
+        public List<MonsterData> monsters = new List<MonsterData>();
 
-        public Dictionary<int, CreatureData> MakeDict()
+        public Dictionary<int, MonsterData> MakeDict()
         {
-            Dictionary<int, CreatureData> dict = new Dictionary<int, CreatureData>();
-            foreach (CreatureData creature in creatures)
-                dict.Add(creature.DataId, creature);
+            Dictionary<int, MonsterData> dict = new Dictionary<int, MonsterData>();
+            foreach (MonsterData monster in monsters)
+                dict.Add(monster.DataId, monster);
+            return dict;
+        }
+    }
+    #endregion
+
+    #region PlayerData
+    public class PlayerData : CreatureData
+    {
+        
+    }
+
+    [Serializable]
+    public class PlayerDataLoader : ILoader<int, PlayerData>
+    {
+        public List<PlayerData> players = new List<PlayerData>();
+
+        public Dictionary<int, PlayerData> MakeDict()
+        {
+            Dictionary<int, PlayerData> dict = new Dictionary<int, PlayerData>();
+            foreach (PlayerData player in players)
+                dict.Add(player.DataId, player);
             return dict;
         }
     }

@@ -30,10 +30,12 @@ public class Player : Creature
             {
                 base.CreatureState = value;
 
-                if (value == CreatureStates.Move)
-                    RigidBody.mass = CreatureData.Mass;
-                else
-                    RigidBody.mass = CreatureData.Mass * 0.1f;
+                switch(value)
+                {
+                    case CreatureStates.Move: RigidBody.mass = CreatureData.Mass * 5.0f; break;
+                    case CreatureStates.Skill: RigidBody.mass = CreatureData.Mass * 500.0f; break;
+                    default: RigidBody.mass = CreatureData.Mass; break;
+                }
             }
         }
     }
@@ -96,20 +98,19 @@ public class Player : Creature
 
 
     #region AI
-    public float SearchDistance { get; private set; } = 8.0f;
     public float AttackDistance
     {
         get
         {
-            float targetRadius = (_target.IsValid() ? _target.ColliderRadius : 0);
+            float targetRadius = (Target.IsValid() ? Target.ColliderRadius : 0);
             return ColliderRadius + targetRadius + 1.0f;
         }
     }
-    public float StopDistance { get; private set; } = 1.0f;
-    BaseObject _target;
 
     protected override void UpdateIdle() 
     {
+        SetRigidBodyVelocity(Vector2.zero);
+
         // 이동 상태면 강제 변경
         if (PlayerMoveState == PlayerMoveStates.ForceMove)
         {
@@ -120,20 +121,20 @@ public class Player : Creature
         // 너무 멀어졌으면 강제 변경
 
         // 몬스터 있을때
-        Creature creature = FindClosestInRange(SearchDistance, Managers.Object.Monsters) as Creature;
+        Creature creature = FindClosestInRange(HERO_SEARCH_DISTANCE, Managers.Object.Monsters) as Creature;
         if (creature != null)
         {
-            _target = creature;
+            Target = creature;
             CreatureState = CreatureStates.Move;
             PlayerMoveState = PlayerMoveStates.TargetMonster;
             return;
         }
 
         // 채집물 있을 때
-        Env env = FindClosestInRange(SearchDistance, Managers.Object.Envs) as Env;
+        Env env = FindClosestInRange(HERO_SEARCH_DISTANCE, Managers.Object.Envs) as Env;
         if (env != null)
         {
-            _target = env;
+            Target = env;
             CreatureState = CreatureStates.Move;
             PlayerMoveState = PlayerMoveStates.CollectEnv;
             return;
@@ -162,38 +163,38 @@ public class Player : Creature
         if (PlayerMoveState == PlayerMoveStates.TargetMonster)
         {
             // 몬스터 죽었으면 포기.
-            if (_target.IsValid() == false)
+            if (Target.IsValid() == false)
             {
                 PlayerMoveState = PlayerMoveStates.None;
                 CreatureState = CreatureStates.Move;
                 return;
             }
 
-            ChaseOrAttackTarget(AttackDistance, SearchDistance);
+            ChaseOrAttackTarget(AttackDistance, HERO_SEARCH_DISTANCE);
             return;
         }
 
         if (PlayerMoveState == PlayerMoveStates.CollectEnv)
         {
             // 몬스터가 있으면 포기.
-            Creature creature = FindClosestInRange(SearchDistance, Managers.Object.Monsters) as Creature;
+            Creature creature = FindClosestInRange(HERO_SEARCH_DISTANCE, Managers.Object.Monsters) as Creature;
             if (creature != null)
             {
-                _target = creature;
+                Target = creature;
                 PlayerMoveState = PlayerMoveStates.TargetMonster;
                 CreatureState = CreatureStates.Move;
                 return;
             }
 
             // Env 이미 채집했으면 포기.
-            if (_target.IsValid() == false)
+            if (Target.IsValid() == false)
             {
                 PlayerMoveState = PlayerMoveStates.None;
                 CreatureState = CreatureStates.Move;
                 return;
             }
 
-            ChaseOrAttackTarget(AttackDistance, SearchDistance);
+            ChaseOrAttackTarget(AttackDistance, HERO_SEARCH_DISTANCE);
             return;
         }
 
@@ -201,8 +202,8 @@ public class Player : Creature
         if (PlayerMoveState == PlayerMoveStates.Return)
         {
             Vector3 dir = PlayerCampDest.position - transform.position;
-            float stopDistanceSqr = StopDistance * StopDistance;
-            if (dir.sqrMagnitude <= StopDistance)
+            float stopDistanceSqr = HERO_DEFAULT_STOP_RANGE * HERO_DEFAULT_STOP_RANGE;
+            if (dir.sqrMagnitude <= HERO_DEFAULT_STOP_RANGE)
             {
                 PlayerMoveState = PlayerMoveStates.None;
                 CreatureState = CreatureStates.Idle;
@@ -225,26 +226,29 @@ public class Player : Creature
 
     protected override void UpdateSkill() 
     {
+        SetRigidBodyVelocity(Vector2.zero);
+
         if (PlayerMoveState == PlayerMoveStates.ForceMove)
         {
             CreatureState = CreatureStates.Move;
             return;
         }
 
-        if (_target.IsValid() == false)
+        if (Target.IsValid() == false)
         {
             CreatureState = CreatureStates.Move;
             return;
         }
     }
     protected override void UpdateDead() 
-    { 
+    {
+        SetRigidBodyVelocity(Vector2.zero);
 
     }
 
     void ChaseOrAttackTarget(float attackRange, float chaseRange)
     {
-        Vector3 dir = (_target.transform.position - transform.position);
+        Vector3 dir = (Target.transform.position - transform.position);
         float distToTargetSqr = dir.sqrMagnitude;
         float attackDistanceSqr = attackRange * attackRange;
 
@@ -263,7 +267,7 @@ public class Player : Creature
             float searchDistanceSqr = chaseRange * chaseRange;
             if (distToTargetSqr > searchDistanceSqr)
             {
-                _target = null;
+                Target = null;
                 PlayerMoveState = PlayerMoveStates.None;
                 CreatureState = CreatureStates.Move;
             }
@@ -345,9 +349,9 @@ public class Player : Creature
         CreatureState = CreatureStates.Move;
 
         // Skill
-        if (_target.IsValid() == false)
+        if (Target.IsValid() == false)
             return;
 
-        _target.OnDamaged(this);
+        Target.OnDamaged(this);
     }
 }
