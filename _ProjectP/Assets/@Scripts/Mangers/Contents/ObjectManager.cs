@@ -7,6 +7,7 @@ public class ObjectManager
 {
     public List<Player> Players { get; } = new List<Player>();
     public List<Monster> Monsters { get; } = new List<Monster>();
+    public List<Projectile> Projectiles { get; } = new List<Projectile>();
     public List<Env> Envs { get; } = new List<Env>();
     public PlayerCamp Camp { get; private set; }
 
@@ -22,6 +23,7 @@ public class ObjectManager
 
     public Transform PlayerRoot { get { return GetRootTransform("@Players"); } }
     public Transform MonsterRoot { get { return GetRootTransform("@Monsters"); } }
+    public Transform ProjectileRoot { get { return GetRootTransform("@Projectiles"); } }
     public Transform EnvRoot { get { return GetRootTransform("@Envss"); } }
     #endregion
 
@@ -56,17 +58,15 @@ public class ObjectManager
         }
         else if (obj.ObjectType == ObjectTypes.Projectile)
         {
-            // TODO
+            obj.transform.parent = ProjectileRoot;
+
+            Projectile projectile = go.GetComponent<Projectile>();
+            Projectiles.Add(projectile);
+
+            projectile.SetInfo(templateID);
         }
         else if (obj.ObjectType == ObjectTypes.Env)
         {
-            // Data Check
-            if (templateID != 0 && Managers.Data.EnvDic.TryGetValue(templateID, out Data.EnvData data) == false)
-            {
-                Debug.LogError($"ObjectManager Spawn Creature Failed! TryGetValue TemplateID : {templateID}");
-                return null;
-            }
-
             obj.transform.parent = EnvRoot;
 
             Env env = go.GetComponent<Env>();
@@ -104,7 +104,8 @@ public class ObjectManager
         }
         else if (obj.ObjectType == ObjectTypes.Projectile)
         {
-            // TODO
+            Projectile projectile = obj as Projectile;
+            Projectiles.Remove(projectile);
         }
         else if (obj.ObjectType == ObjectTypes.Env)
         {

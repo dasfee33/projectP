@@ -50,6 +50,10 @@ public class Monster : Creature
 
         // State
         CreatureState = CreatureStates.Idle;
+
+        // Skill
+        Skills = gameObject.GetOrAddComponent<SkillComponent>();
+        Skills.SetInfo(this, CreatureData.SkillIdList);
     }
 
     void Start()
@@ -58,7 +62,6 @@ public class Monster : Creature
     }
 
     #region AI
-    public float AttackDistance { get; protected set; } =4.0f;
     private Vector3 destPos;
     private Vector3 initPos;
 
@@ -98,12 +101,15 @@ public class Monster : Creature
                 return;
             }
 
-            SetRigidBodyVelocity(dir.normalized * MoveSpeed);
+            //SetRigidBodyVelocity(dir.normalized * MoveSpeed);
         }
         else
         {
             // Chase
-            ChaseOrAttackTarget(MONSTER_SEARCH_DISTANCE, 5.0f);
+            SkillBase skill = Skills.GetReadySkill();
+            ChaseOrAttackTarget(MONSTER_SEARCH_DISTANCE, skill);
+
+            //ChaseOrAttackTarget(MONSTER_SEARCH_DISTANCE, 5.0f);
 
             if(Target.IsValid() == false)
             {
@@ -116,26 +122,31 @@ public class Monster : Creature
 
     protected override void UpdateSkill()
     {
-        if (_coWait != null) return;
-
-        CreatureState = CreatureStates.Move;
+        if(Target.IsValid() == false)
+        {
+            Target = null;
+            destPos = initPos;
+            CreatureState = CreatureStates.Move;
+            return;
+        }
     }
 
     protected override void UpdateDead()
     {
+        
     }
 
     #endregion
 
     #region Battle
-    public override void OnDamaged(BaseObject attacker)
+    public override void OnDamaged(BaseObject attacker, SkillBase skill)
     {
-        base.OnDamaged(attacker);
+        base.OnDamaged(attacker, skill);
     }
 
-    public override void OnDead(BaseObject attacker)
+    public override void OnDead(BaseObject attacker, SkillBase skill)
     {
-        base.OnDead(attacker);
+        base.OnDead(attacker, skill);
 
         // TODO : Drop Item
 

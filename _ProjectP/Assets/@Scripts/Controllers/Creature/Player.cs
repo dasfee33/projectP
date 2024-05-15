@@ -6,20 +6,7 @@ using static Define;
 
 public class Player : Creature
 {
-    bool needReturn = true;
-    public bool NeedReturn
-    {
-        get { return needReturn; }
-        set
-        {
-            needReturn = value;
-
-            if (value)
-                ChangeColliderSize(ColliderSizes.Big);
-            else
-                TryResizeCollider();
-        }
-    }
+    public bool NeedReturn { get; set; }
 
     public override CreatureStates CreatureState
     {
@@ -30,12 +17,6 @@ public class Player : Creature
             {
                 base.CreatureState = value;
 
-                switch(value)
-                {
-                    case CreatureStates.Move: RigidBody.mass = CreatureData.Mass * 5.0f; break;
-                    case CreatureStates.Skill: RigidBody.mass = CreatureData.Mass * 500.0f; break;
-                    default: RigidBody.mass = CreatureData.Mass; break;
-                }
             }
         }
     }
@@ -72,6 +53,10 @@ public class Player : Creature
         Managers.Game.OnJoystickStateChanged -= HandleOnJoystickStateChanged;
         Managers.Game.OnJoystickStateChanged += HandleOnJoystickStateChanged;
 
+        //Map
+        Collider.isTrigger = true;
+        RigidBody.simulated = false;
+
         StartCoroutine(CoUpdateAI());
 
         return true;
@@ -82,6 +67,10 @@ public class Player : Creature
         base.SetInfo(templateID);
 
         CreatureState = CreatureStates.Idle;
+
+        // Skill
+        Skills = gameObject.GetOrAddComponent<SkillComponent>();
+        Skills.SetInfo(this, CreatureData.SkillIdList);
     }
 
     public Transform PlayerCampDest
@@ -98,19 +87,8 @@ public class Player : Creature
 
 
     #region AI
-    public float AttackDistance
-    {
-        get
-        {
-            float targetRadius = (Target.IsValid() ? Target.ColliderRadius : 0);
-            return ColliderRadius + targetRadius + 1.0f;
-        }
-    }
-
     protected override void UpdateIdle() 
     {
-        SetRigidBodyVelocity(Vector2.zero);
-
         // 이동 상태면 강제 변경
         if (PlayerMoveState == PlayerMoveStates.ForceMove)
         {
@@ -154,8 +132,7 @@ public class Player : Creature
         // 누르고 있다면, 강제 이동
         if (PlayerMoveState == PlayerMoveStates.ForceMove)
         {
-            Vector3 dir = PlayerCampDest.position - transform.position;
-            SetRigidBodyVelocity(dir.normalized * MoveSpeed);
+            FindPathResults result = FindPathAndMoveToCellPos(PlayerCampDest.position, HERO_DEFAULT_MOVE_DEPTH);
             return;
         }
 
@@ -170,7 +147,9 @@ public class Player : Creature
                 return;
             }
 
-            ChaseOrAttackTarget(AttackDistance, HERO_SEARCH_DISTANCE);
+            SkillBase skill = Skills.GetReadySkill();
+            //ChaseOrAttackTarget(AttackDistance, HERO_SEARCH_DISTANCE);
+            ChaseOrAttackTarget(HERO_SEARCH_DISTANCE, skill);
             return;
         }
 
@@ -194,40 +173,47 @@ public class Player : Creature
                 return;
             }
 
-            ChaseOrAttackTarget(AttackDistance, HERO_SEARCH_DISTANCE);
+            SkillBase skill = Skills.GetReadySkill();
+            ChaseOrAttackTarget(HERO_SEARCH_DISTANCE, skill);
             return;
         }
 
         // 모이기
         if (PlayerMoveState == PlayerMoveStates.Return)
         {
-            Vector3 dir = PlayerCampDest.position - transform.position;
-            float stopDistanceSqr = HERO_DEFAULT_STOP_RANGE * HERO_DEFAULT_STOP_RANGE;
-            if (dir.sqrMagnitude <= HERO_DEFAULT_STOP_RANGE)
-            {
-                PlayerMoveState = PlayerMoveStates.None;
-                CreatureState = CreatureStates.Idle;
-                NeedReturn = false;
+            Vector3 destPos = PlayerCampDest.position;
+            if (FindPathAndMoveToCellPos(destPos, HERO_DEFAULT_MOVE_DEPTH) == FindPathResults.Success)
                 return;
-            }
-            else
+
+            // 실패 사유 검사.
+            BaseObject obj = Managers.Map.GetObject(destPos);
+            if (obj.IsValid())
             {
-                // 멀리 있을 수록 빨라짐
-                float ratio = Mathf.Min(1, dir.magnitude); // TEMP
-                float moveSpeed = MoveSpeed * (float)Math.Pow(ratio, 3);
-                SetRigidBodyVelocity(dir.normalized * moveSpeed);
-                return;
+                // 내가 그 자리를 차지하고 있다면
+                if (obj == this)
+                {
+                    PlayerMoveState = PlayerMoveStates.None;
+                    NeedReturn = false;
+                    return;
+                }
+
+                // 다른 영웅이 멈춰있다면.
+                Player player = obj as Player;
+                if (player != null && player.CreatureState == CreatureStates.Idle)
+                {
+                    PlayerMoveState = PlayerMoveStates.None;
+                    NeedReturn = false;
+                    return;
+                }
             }
         }
-
         //누르다가 떼었을때
-        CreatureState = CreatureStates.Idle;
+        if(LerpCellPosCompleted)
+            CreatureState = CreatureStates.Idle;
     }
 
     protected override void UpdateSkill() 
     {
-        SetRigidBodyVelocity(Vector2.zero);
-
         if (PlayerMoveState == PlayerMoveStates.ForceMove)
         {
             CreatureState = CreatureStates.Move;
@@ -242,85 +228,11 @@ public class Player : Creature
     }
     protected override void UpdateDead() 
     {
-        SetRigidBodyVelocity(Vector2.zero);
 
     }
 
-    void ChaseOrAttackTarget(float attackRange, float chaseRange)
-    {
-        Vector3 dir = (Target.transform.position - transform.position);
-        float distToTargetSqr = dir.sqrMagnitude;
-        float attackDistanceSqr = attackRange * attackRange;
-
-        if (distToTargetSqr <= attackDistanceSqr)
-        {
-            // 공격 범위 이내로 들어왔다면 공격.
-            CreatureState = CreatureStates.Skill;
-            return;
-        }
-        else
-        {
-            // 공격 범위 밖이라면 추적.
-            SetRigidBodyVelocity(dir.normalized * MoveSpeed);
-
-            // 너무 멀어지면 포기.
-            float searchDistanceSqr = chaseRange * chaseRange;
-            if (distToTargetSqr > searchDistanceSqr)
-            {
-                Target = null;
-                PlayerMoveState = PlayerMoveStates.None;
-                CreatureState = CreatureStates.Move;
-            }
-            return;
-        }
-    }
-
-    BaseObject FindClosestInRange(float range, IEnumerable<BaseObject> objs)
-    {
-        BaseObject target = null;
-        float bestDistanceSqr = float.MaxValue;
-        float searchDistanceSqr = range * range;
-
-        foreach (BaseObject obj in objs)
-        {
-            Vector3 dir = obj.transform.position - transform.position;
-            float distToTargetSqr = dir.sqrMagnitude;
-
-            // 서치 범위보다 멀리 있으면 스킵.
-            if (distToTargetSqr > searchDistanceSqr)
-                continue;
-
-            // 이미 더 좋은 후보를 찾았으면 스킵.
-            if (distToTargetSqr > bestDistanceSqr)
-                continue;
-
-            target = obj;
-            bestDistanceSqr = distToTargetSqr;
-        }
-
-        return target;
-    }
     #endregion
-    private void TryResizeCollider()
-    {
-        // 일단 충돌체 아주 작게.
-        ChangeColliderSize(ColliderSizes.Small);
-
-        foreach (var hero in Managers.Object.Players)
-        {
-            if (hero.PlayerMoveState == PlayerMoveStates.Return)
-                return;
-        }
-
-        // Return이 한 명도 없으면 콜라이더 조정.
-        foreach (var hero in Managers.Object.Players)
-        {
-            // 단 채집이나 전투중이면 스킵.
-            if (hero.CreatureState == CreatureStates.Idle)
-                hero.ChangeColliderSize(ColliderSizes.Big);
-        }
-    }
-
+   
     private void HandleOnJoystickStateChanged(JoystickStates joystickState)
     {
         switch (joystickState)
@@ -345,13 +257,6 @@ public class Player : Creature
     {
         base.OnAnimEventHandler(trackEntry, e);
 
-        // TODO
-        CreatureState = CreatureStates.Move;
-
-        // Skill
-        if (Target.IsValid() == false)
-            return;
-
-        Target.OnDamaged(this);
+        
     }
 }

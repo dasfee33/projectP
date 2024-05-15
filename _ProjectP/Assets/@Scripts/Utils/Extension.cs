@@ -33,6 +33,22 @@ public static class Extension
         return true;
     }
 
+    public static void MakeMask(this ref LayerMask mask, List<Define.Layers> list)
+    {
+        foreach (Define.Layers layer in list)
+            mask |= (1 << (int)layer);
+    }
+
+    public static void AddLayer(this ref LayerMask mask, Define.Layers layer)
+    {
+        mask |= (1 << (int)layer);
+    }
+
+    public static void RemoveLayer(this ref LayerMask mask, Define.Layers layer)
+    {
+        mask &= ~(1 << (int)layer);
+    }
+
     public static void DestroyChilds(this GameObject go)
     {
         foreach (Transform child in go.transform)

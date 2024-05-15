@@ -9,6 +9,7 @@ using static Define;
 public class Creature : BaseObject
 {
     public BaseObject Target { get; protected set; }
+    public SkillComponent Skills { get; protected set; }
 
     public Data.CreatureData CreatureData { get; protected set; }
     public CreatureTypes CreatureType { get; protected set; } = CreatureTypes.None;
@@ -101,6 +102,8 @@ public class Creature : BaseObject
         // State
         CreatureState = CreatureStates.Idle;
 
+        // Map
+        StartCoroutine(CoLerpToCellPos());
     }
 
     protected override void UpdateAnimation()
@@ -111,7 +114,7 @@ public class Creature : BaseObject
                 PlayAnimation(0, AnimName.IDLE, true);
                 break;
             case CreatureStates.Skill:
-                PlayAnimation(0, AnimName.ATTACK_A, true);
+                //PlayAnimation(0, AnimName.ATTACK_A, true);
                 break;
             case CreatureStates.Move:
                 PlayAnimation(0, AnimName.MOVE, true);
@@ -121,22 +124,6 @@ public class Creature : BaseObject
                 RigidBody.simulated = false;
                 break;
             default:
-                break;
-        }
-    }
-
-    public void ChangeColliderSize(ColliderSizes size = ColliderSizes.Normal)
-    {
-        switch (size)
-        {
-            case ColliderSizes.Small:
-                Collider.radius = CreatureData.ColliderRadius * 0.8f;
-                break;
-            case ColliderSizes.Normal:
-                Collider.radius = CreatureData.ColliderRadius;
-                break;
-            case ColliderSizes.Big:
-                Collider.radius = CreatureData.ColliderRadius * 1.2f;
                 break;
         }
     }
@@ -177,9 +164,9 @@ public class Creature : BaseObject
     #endregion
 
     #region Battle
-    public override void OnDamaged(BaseObject attacker)
+    public override void OnDamaged(BaseObject attacker, SkillBase skill)
     {
-        base.OnDamaged(attacker);
+        base.OnDamaged(attacker, skill);
 
         if (attacker.IsValid() == false)
             return;
@@ -193,34 +180,42 @@ public class Creature : BaseObject
 
         if (Hp <= 0)
         {
-            OnDead(attacker);
+            OnDead(attacker, skill);
             CreatureState = CreatureStates.Dead;
         }
     }
 
-    public override void OnDead(BaseObject attacker)
+    public override void OnDead(BaseObject attacker, SkillBase skill)
     {
-        base.OnDead(attacker);
+        base.OnDead(attacker, skill);
 
 
     }
 
-    protected void ChaseOrAttackTarget(float attackRange, float chaseRange)
+    protected void ChaseOrAttackTarget(float chaseRange, SkillBase skill)
     {
         Vector3 dir = (Target.transform.position - transform.position);
         float distToTargetSqr = dir.sqrMagnitude;
-        float attackDistanceSqr = attackRange * attackRange;
+
+        // TEMP
+        float attackRange = HERO_DEFAULT_MELEE_ATTACK_RANGE;
+        if (skill.SkillData.ProjectileId != 0)
+            attackRange = HERO_DEFAULT_RANGED_ATTACK_RANGE;
+
+        float finalAttackRange = attackRange + Target.ColliderRadius + ColliderRadius;
+        float attackDistanceSqr = finalAttackRange * finalAttackRange;
 
         if (distToTargetSqr <= attackDistanceSqr)
         {
             // 공격 범위 이내로 들어왔다면 공격.
             CreatureState = CreatureStates.Skill;
+            skill.DoSkill();
             return;
         }
         else
         {
             // 공격 범위 밖이라면 추적.
-            SetRigidBodyVelocity(dir.normalized * MoveSpeed);
+            FindPathAndMoveToCellPos(Target.transform.position, HERO_DEFAULT_MOVE_DEPTH);
 
             // 너무 멀어지면 포기.
             float searchDistanceSqr = chaseRange * chaseRange;
@@ -232,6 +227,34 @@ public class Creature : BaseObject
             return;
         }
     }
+
+    //protected void ChaseOrAttackTarget(float attackRange, float chaseRange)
+    //{
+    //    Vector3 dir = (Target.transform.position - transform.position);
+    //    float distToTargetSqr = dir.sqrMagnitude;
+    //    float attackDistanceSqr = attackRange * attackRange;
+
+    //    if (distToTargetSqr <= attackDistanceSqr)
+    //    {
+    //        // 공격 범위 이내로 들어왔다면 공격.
+    //        CreatureState = CreatureStates.Skill;
+    //        return;
+    //    }
+    //    else
+    //    {
+    //        // 공격 범위 밖이라면 추적.
+    //        SetRigidBodyVelocity(dir.normalized * MoveSpeed);
+
+    //        // 너무 멀어지면 포기.
+    //        float searchDistanceSqr = chaseRange * chaseRange;
+    //        if (distToTargetSqr > searchDistanceSqr)
+    //        {
+    //            Target = null;
+    //            CreatureState = CreatureStates.Move;
+    //        }
+    //        return;
+    //    }
+    //}
 
     protected BaseObject FindClosestInRange(float range, IEnumerable<BaseObject> objs, Func<BaseObject, bool> func = null)
     {
@@ -271,26 +294,69 @@ public class Creature : BaseObject
     }
     #endregion
 
-    #region Wait
-    protected Coroutine _coWait;
-
-    protected void StartWait(float seconds)
+    #region Map
+    public FindPathResults FindPathAndMoveToCellPos(Vector3 destWorldPos, int maxDepth, bool forceMoveCloser = false)
     {
-        CancelWait();
-        _coWait = StartCoroutine(CoWait(seconds));
+        Vector3Int destCellPos = Managers.Map.World2Cell(destWorldPos);
+        return FindPathAndMoveToCellPos(destCellPos, maxDepth, forceMoveCloser);
     }
 
-    IEnumerator CoWait(float seconds)
+    public FindPathResults FindPathAndMoveToCellPos(Vector3Int destCellPos, int maxDepth, bool forceMoveCloser = false)
     {
-        yield return new WaitForSeconds(seconds);
-        _coWait = null;
+        if (LerpCellPosCompleted == false)
+            return FindPathResults.Fail_LerpCell;
+
+        // A*
+        //List<Vector3Int> path = Managers.Map.FindPath(CellPos, destCellPos, maxDepth);
+        //if (path.Count < 2)
+        //    return FindPathResults.Fail_NoPath;
+
+        //if (forceMoveCloser)
+        //{
+        //    Vector3Int diff1 = CellPos - destCellPos;
+        //    Vector3Int diff2 = path[1] - destCellPos;
+        //    if (diff1.sqrMagnitude <= diff2.sqrMagnitude)
+        //        return FindPathResults.Fail_NoPath;
+        //}
+
+        //Vector3Int dirCellPos = path[1] - CellPos;
+        Vector3Int dirCellPos = destCellPos - CellPos;
+        Vector3Int nextPos = CellPos + dirCellPos;
+
+        if (Managers.Map.MoveTo(this, nextPos) == false)
+            return FindPathResults.Fail_MoveTo;
+
+        return FindPathResults.Success;
     }
 
-    protected void CancelWait()
+    public bool MoveToCellPos(Vector3Int destCellPos, int maxDepth, bool forceMoveCloser = false)
     {
-        if (_coWait != null)
-            StopCoroutine(_coWait);
-        _coWait = null;
+        if (LerpCellPosCompleted == false)
+            return false;
+
+        return Managers.Map.MoveTo(this, destCellPos);
+    }
+
+    protected IEnumerator CoLerpToCellPos()
+    {
+        while (true)
+        {
+            Player hero = this as Player;
+            if (hero != null)
+            {
+                float div = 5;
+                Vector3 campPos = Managers.Object.Camp.Destination.transform.position;
+                Vector3Int campCellPos = Managers.Map.World2Cell(campPos);
+                float ratio = Math.Max(1, (CellPos - campCellPos).magnitude / div);
+
+                LerpToCellPos(CreatureData.MoveSpeed * ratio);
+            }
+            else
+                LerpToCellPos(CreatureData.MoveSpeed);
+
+            yield return null;
+        }
     }
     #endregion
+
 }
