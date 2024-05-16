@@ -96,8 +96,6 @@ public class Player : Creature
             return;
         }
 
-        // 너무 멀어졌으면 강제 변경
-
         // 몬스터 있을때
         Creature creature = FindClosestInRange(HERO_SEARCH_DISTANCE, Managers.Object.Monsters) as Creature;
         if (creature != null)
@@ -129,6 +127,14 @@ public class Player : Creature
 
     protected override void UpdateMove() 
     {
+        if(PlayerMoveState == PlayerMoveStates.ForcePath)
+        {
+            MoveByForcePath();
+            return;
+        }
+
+        if (CheckPlayerCampDistanceAndForcePath()) return;
+
         // 누르고 있다면, 강제 이동
         if (PlayerMoveState == PlayerMoveStates.ForceMove)
         {
@@ -210,6 +216,60 @@ public class Player : Creature
         //누르다가 떼었을때
         if(LerpCellPosCompleted)
             CreatureState = CreatureStates.Idle;
+    }
+
+    Queue<Vector3Int> _forcePath = new Queue<Vector3Int>();
+
+    bool CheckPlayerCampDistanceAndForcePath()
+    {
+        // 너무 멀어서 못 간다.
+        Vector3 destPos = PlayerCampDest.position;
+        Vector3Int destCellPos = Managers.Map.World2Cell(destPos);
+        if ((CellPos - destCellPos).magnitude <= 10)
+            return false;
+
+        if (Managers.Map.CanGo(destCellPos, ignoreObjects: true) == false)
+            return false;
+
+        List<Vector3Int> path = Managers.Map.FindPath(CellPos, destCellPos, 100);
+        if (path.Count < 2)
+            return false;
+
+        PlayerMoveState = PlayerMoveStates.ForcePath;
+
+        _forcePath.Clear();
+        foreach (var p in path)
+        {
+            _forcePath.Enqueue(p);
+        }
+        _forcePath.Dequeue();
+
+        return true;
+    }
+
+    void MoveByForcePath()
+    {
+        if (_forcePath.Count == 0)
+        {
+            PlayerMoveState = PlayerMoveStates.None;
+            return;
+        }
+
+        Vector3Int cellPos = _forcePath.Peek();
+
+        if (MoveToCellPos(cellPos, 2))
+        {
+            _forcePath.Dequeue();
+            return;
+        }
+
+        // 실패 사유가 영웅이라면.
+        Player player = Managers.Map.GetObject(cellPos) as Player;
+        if (player != null && player.CreatureState == CreatureStates.Idle)
+        {
+            PlayerMoveState = PlayerMoveStates.None;
+            return;
+        }
     }
 
     protected override void UpdateSkill() 

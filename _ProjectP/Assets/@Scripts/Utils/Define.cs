@@ -59,6 +59,7 @@ public static class Define
         CollectEnv,
         Return,
         ForceMove,
+        ForcePath,
     }
 
     public enum EnvStates
