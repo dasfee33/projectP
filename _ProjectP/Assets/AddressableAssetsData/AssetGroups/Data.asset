@@ -17,36 +17,6 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 2ed6940ebb063f141ad38f473e041b77
   m_SerializeEntries:
-  - m_GUID: bd3f1a2a578b18b4d8a77934e2917c75
-    m_Address: EnvData
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - PreLoad
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 0db867bcf75550f42a0107d118992569
-    m_Address: MonsterData
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - PreLoad
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 4fb2fa36b1385db42bbc29cc92834288
-    m_Address: PlayerData
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - PreLoad
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 7bfd886e3f22f334989d58fc25516821
-    m_Address: SkillData
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - PreLoad
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 183dacd8afce2264787872e2434e18d8
-    m_Address: ProjectileData
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - PreLoad
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c348ffc4f035e1047beb8f5c657cb65a
     m_Address: BaseMapCollision
     m_ReadOnly: 0

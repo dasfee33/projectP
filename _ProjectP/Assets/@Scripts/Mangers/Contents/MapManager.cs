@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using static Define;
 
 public class MapManager
@@ -38,7 +39,7 @@ public class MapManager
 
         ParseCollisionData(map, mapName);
 
-        //SpawnObjectsByData(map, mapName);
+        SpawnObjectsByData(map, mapName);
     }
 
     public void DestroyMap()
@@ -89,6 +90,45 @@ public class MapManager
         }
     }
 
+    void SpawnObjectsByData(GameObject map, string mapName, string tilemap = "Tilemap_Object")
+    {
+        Tilemap tm = Util.FindChild<Tilemap>(map, tilemap, true);
+
+        if (tm != null)
+            tm.gameObject.SetActive(false);
+
+        for (int y = tm.cellBounds.yMax; y >= tm.cellBounds.yMin; y--)
+        {
+            for (int x = tm.cellBounds.xMin; x <= tm.cellBounds.xMax; x++)
+            {
+                Vector3Int cellPos = new Vector3Int(x, y, 0);
+                CustomTile tile = tm.GetTile(cellPos) as CustomTile;
+                if (tile == null)
+                    continue;
+
+                if (tile.ObjectType == Define.ObjectTypes.Env)
+                {
+                    Vector3 worldPos = Cell2World(cellPos);
+                    Env env = Managers.Object.Spawn<Env>(worldPos, tile.DataTemplateID);
+                    env.SetCellPos(cellPos, true);
+                }
+                else
+                {
+                    if (tile.CreatureType == Define.CreatureTypes.Monster)
+                    {
+                        Vector3 worldPos = Cell2World(cellPos);
+                        Monster monster = Managers.Object.Spawn<Monster>(worldPos, tile.DataTemplateID);
+                        monster.SetCellPos(cellPos, true);
+                    }
+                    else if (tile.CreatureType == Define.CreatureTypes.Npc)
+                    {
+
+                    }
+                }
+            }
+        }
+    }
+
     public bool MoveTo(Creature obj, Vector3Int cellPos, bool forceMove = false)
     {
         if (CanGo(cellPos) == false)
@@ -110,6 +150,38 @@ public class MapManager
     }
 
     #region Helpers
+
+    public List<T> GatherObjects<T>(Vector3 pos, float rangeX, float rangeY) where T : BaseObject
+    {
+        List<T> objects = new List<T>();
+
+        Vector3Int left = World2Cell(pos + new Vector3(-rangeX, 0));
+        Vector3Int right = World2Cell(pos + new Vector3(+rangeX, 0));
+        Vector3Int bottom = World2Cell(pos + new Vector3(0, -rangeY));
+        Vector3Int top = World2Cell(pos + new Vector3(0, +rangeY));
+        int minX = left.x;
+        int maxX = right.x;
+        int minY = bottom.y;
+        int maxY = top.y;
+
+        for (int x = minX; x <= maxX; x++)
+        {
+            for (int y = minY; y <= maxY; y++)
+            {
+                Vector3Int tilePos = new Vector3Int(x, y, 0);
+
+                // 타입에 맞는 리스트 리턴
+                T obj = GetObject(tilePos) as T;
+                if (obj == null)
+                    continue;
+
+                objects.Add(obj);
+            }
+        }
+
+        return objects;
+    }
+
     public BaseObject GetObject(Vector3Int cellPos)
     {
         // 없으면 null

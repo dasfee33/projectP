@@ -113,6 +113,35 @@ public static class Define
         Wall,
     }
 
+    public enum SkillSlots
+    {
+        Default,
+        Env,
+        A,
+        B
+    }
+
+    public enum IndicatorTypes
+    {
+        None,
+        Cone,
+        Rectangle,
+    }
+
+    public enum EffectSizes
+    {
+        CircleSmall,
+        CircleNormal,
+        CircleBig,
+        ConeSmall,
+        ConeNormal,
+        ConeBig,
+    }
+
+    public const float EFFECT_SMALL_RADIUS = 2.5f;
+    public const float EFFECT_NORMAL_RADIUS = 4.5f;
+    public const float EFFECT_BIG_RADIUS = 5.5f;
+
     public const int CAMERA_PROJECTION_SIZE = 12;
 
     // HARD CODING

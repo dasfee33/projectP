@@ -37,20 +37,20 @@ public class GameScene : BaseScene
 
         Managers.UI.ShowBaseUI<UI_Joystick>();
 
-        {
-            Monster monster1 = Managers.Object.Spawn<Monster>(new Vector3(1, 1, 0), MONSTER_SLIME_ID);
-            Monster monster2 = Managers.Object.Spawn<Monster>(new Vector3(1, 1, 0), MONSTER_GOBLIN_ARCHER_ID);
-            Monster monster3 = Managers.Object.Spawn<Monster>(new Vector3(1, 1, 0), MONSTER_GOBLIN_ARCHER_ID);
-
-            Managers.Map.MoveTo(monster1, new Vector3Int(0, 4, 0), true);
-            Managers.Map.MoveTo(monster2, new Vector3Int(-11, 4, 0), true);
-            Managers.Map.MoveTo(monster3, new Vector3Int(11, 4, 0), true);
-        }
-
-        {
-            Env env = Managers.Object.Spawn<Env>(new Vector3(0, 2, 0), ENV_TREE1_ID);
-            env.EnvState = EnvStates.Idle;
-        }
+        //{
+        //    Monster monster1 = Managers.Object.Spawn<Monster>(new Vector3(1, 1, 0), MONSTER_SLIME_ID);
+        //    Monster monster2 = Managers.Object.Spawn<Monster>(new Vector3(1, 1, 0), MONSTER_GOBLIN_ARCHER_ID);
+        //    Monster monster3 = Managers.Object.Spawn<Monster>(new Vector3(1, 1, 0), MONSTER_GOBLIN_ARCHER_ID);
+        //
+        //    Managers.Map.MoveTo(monster1, new Vector3Int(0, 4, 0), true);
+        //    Managers.Map.MoveTo(monster2, new Vector3Int(-11, 4, 0), true);
+        //    Managers.Map.MoveTo(monster3, new Vector3Int(11, 4, 0), true);
+        //}
+        //
+        //{
+        //    Env env = Managers.Object.Spawn<Env>(new Vector3(0, 2, 0), ENV_TREE1_ID);
+        //    env.EnvState = EnvStates.Idle;
+        //}
         //TODO
 
         return true;

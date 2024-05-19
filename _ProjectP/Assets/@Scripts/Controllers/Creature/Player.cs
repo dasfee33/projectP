@@ -69,8 +69,8 @@ public class Player : Creature
         CreatureState = CreatureStates.Idle;
 
         // Skill
-        Skills = gameObject.GetOrAddComponent<SkillComponent>();
-        Skills.SetInfo(this, CreatureData.SkillIdList);
+        //Skills = gameObject.GetOrAddComponent<SkillComponent>();
+        //Skills.SetInfo(this, CreatureData.SkillIdList);
     }
 
     public Transform PlayerCampDest
@@ -153,9 +153,8 @@ public class Player : Creature
                 return;
             }
 
-            SkillBase skill = Skills.GetReadySkill();
             //ChaseOrAttackTarget(AttackDistance, HERO_SEARCH_DISTANCE);
-            ChaseOrAttackTarget(HERO_SEARCH_DISTANCE, skill);
+            ChaseOrAttackTarget(HERO_SEARCH_DISTANCE, AttackDistance);
             return;
         }
 
@@ -179,8 +178,7 @@ public class Player : Creature
                 return;
             }
 
-            SkillBase skill = Skills.GetReadySkill();
-            ChaseOrAttackTarget(HERO_SEARCH_DISTANCE, skill);
+            ChaseOrAttackTarget(HERO_SEARCH_DISTANCE, AttackDistance);
             return;
         }
 
@@ -274,6 +272,8 @@ public class Player : Creature
 
     protected override void UpdateSkill() 
     {
+        base.UpdateSkill();
+
         if (PlayerMoveState == PlayerMoveStates.ForceMove)
         {
             CreatureState = CreatureStates.Move;
