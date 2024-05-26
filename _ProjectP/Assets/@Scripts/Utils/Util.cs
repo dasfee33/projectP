@@ -70,18 +70,18 @@ public static class Util
         return parsedColor;
     }
 
-    public static CreatureTypes DetermineTargetType(CreatureTypes ownerType, bool findAllies)
+    public static ObjectTypes DetermineTargetType(ObjectTypes ownerType, bool findAllies)
     {
-        if (ownerType == Define.CreatureTypes.Player)
+        if (ownerType == Define.ObjectTypes.Player)
         {
-            return findAllies ? CreatureTypes.Player : CreatureTypes.Monster;
+            return findAllies ? ObjectTypes.Player : ObjectTypes.Monster;
         }
-        else if (ownerType == Define.CreatureTypes.Monster)
+        else if (ownerType == Define.ObjectTypes.Monster)
         {
-            return findAllies ? CreatureTypes.Monster : CreatureTypes.Player;
+            return findAllies ? ObjectTypes.Monster : ObjectTypes.Player;
         }
 
-        return CreatureTypes.None;
+        return ObjectTypes.None;
     }
 
     public static float GetEffectRadius(EffectSizes size)

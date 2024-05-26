@@ -12,23 +12,30 @@ public class Creature : BaseObject
     public SkillComponent Skills { get; protected set; }
 
     public Data.CreatureData CreatureData { get; protected set; }
-    public CreatureTypes CreatureType { get; protected set; } = CreatureTypes.None;
+
+    public EffectComponent Effects { get; set; }
+
+    private float DistToTargetSqr
+    {
+        get
+        {
+            Vector3 dir = (Target.transform.position - this.transform.position);
+            float distToTarget = Math.Max(0, dir.magnitude - Target.ExtraCells * 1f - this.ExtraCells * 1f); // TEMP
+            return distToTarget * distToTarget;
+        }
+    }
 
     #region Stats
     public float Hp { get; set; }
-    public float MaxHp { get; set; }
-    public float MaxHpBonusRate { get; set; }
-    public float HealBonusRate { get; set; }
-    public float HpRegen { get; set; }
-    public float Atk { get; set; }
-    public float AttackRate { get; set; }
-    public float Def { get; set; }
-    public float DefRate { get; set; }
-    public float CriRate { get; set; }
-    public float CriDamage { get; set; }
-    public float DamageReduction { get; set; }
-    public float MoveSpeedRate { get; set; }
-    public float MoveSpeed { get; set; }
+    public CreatureStat MaxHp;
+    public CreatureStat Atk;
+    public CreatureStat CriRate;
+    public CreatureStat CriDamage;
+    public CreatureStat ReduceDamageRate;
+    public CreatureStat LifeStealRate;
+    public CreatureStat ThornsDamageRate; // 쏜즈
+    public CreatureStat MoveSpeed;
+    public CreatureStat AttackSpeedRate;
     #endregion
 
     protected float AttackDistance
@@ -63,8 +70,6 @@ public class Creature : BaseObject
         if (base.Init() == false)
             return false;
 
-        ObjectType = ObjectTypes.Creature;
-
         return true;
     }
 
@@ -72,7 +77,7 @@ public class Creature : BaseObject
     {
         DataTemplateID = templateID;
 
-        if (CreatureType == CreatureTypes.Player)
+        if (ObjectType == ObjectTypes.Player)
             CreatureData = Managers.Data.PlayerDic[templateID];
         else
             CreatureData = Managers.Data.MonsterDic[templateID];
@@ -86,35 +91,31 @@ public class Creature : BaseObject
         // RigidBody
         RigidBody.mass = 0;
 
-        // Spine
-        SkeletonAnim.skeletonDataAsset = Managers.Resource.Load<SkeletonDataAsset>(CreatureData.SkeletonDataID);
-        SkeletonAnim.Initialize(true);
-
-        // Register AnimEvent
-        if (SkeletonAnim.AnimationState != null)
-        {
-            SkeletonAnim.AnimationState.Event -= OnAnimEventHandler;
-            SkeletonAnim.AnimationState.Event += OnAnimEventHandler;
-        }
-
-        // Spine SkeletonAnimation은 SpriteRenderer 를 사용하지 않고 MeshRenderer을 사용함.
-        // 그렇기떄문에 2D Sort Axis가 안먹히게 되는데 SortingGroup을 SpriteRenderer, MeshRenderer을같이 계산함.
-        SortingGroup sg = Util.GetOrAddComponent<SortingGroup>(gameObject);
-        sg.sortingOrder = SortingLayers.CREATURE;
+        //Spine
+        SetSpineAnimation(CreatureData.SkeletonDataID, SortingLayers.CREATURE);
 
         // Skills
         Skills = gameObject.GetOrAddComponent<SkillComponent>();
         Skills.SetInfo(this, CreatureData);
 
         // Stat
-        MaxHp = CreatureData.MaxHp;
         Hp = CreatureData.MaxHp;
-        Atk = CreatureData.MaxHp;
-        MaxHp = CreatureData.MaxHp;
-        MoveSpeed = CreatureData.MoveSpeed;
+        MaxHp = new CreatureStat(CreatureData.MaxHp);
+        Atk = new CreatureStat(CreatureData.Atk);
+        CriRate = new CreatureStat(CreatureData.CriRate);
+        CriDamage = new CreatureStat(CreatureData.Cridamage);
+        ReduceDamageRate = new CreatureStat(0);
+        LifeStealRate = new CreatureStat(0);
+        ThornsDamageRate = new CreatureStat(0);
+        MoveSpeed = new CreatureStat(CreatureData.MoveSpeed);
+        AttackSpeedRate = new CreatureStat(1);
 
         // State
         CreatureState = CreatureStates.Idle;
+
+        // Effect
+        Effects = gameObject.AddComponent<EffectComponent>();
+        Effects.SetInfo(this);
 
         // Map
         StartCoroutine(CoLerpToCellPos());
@@ -132,6 +133,10 @@ public class Creature : BaseObject
                 break;
             case CreatureStates.Move:
                 PlayAnimation(0, AnimName.MOVE, true);
+                break;
+            case CreatureStates.OnDamaged:
+                PlayAnimation(0, AnimName.IDLE, true);
+                Skills.CurrentSkill.CancelSkill();
                 break;
             case CreatureStates.Dead:
                 PlayAnimation(0, AnimName.DEAD, true);
@@ -160,6 +165,9 @@ public class Creature : BaseObject
                 case CreatureStates.Skill:
                     UpdateSkill();
                     break;
+                case CreatureStates.OnDamaged:
+                    UpdateDamaged();
+                    break;
                 case CreatureStates.Dead:
                     UpdateDead();
                     break;
@@ -184,8 +192,7 @@ public class Creature : BaseObject
             return;
         }
 
-        Vector3 dir = (Target.CenterPosition - CenterPosition);
-        float distToTargetSqr = dir.sqrMagnitude;
+        float distToTargetSqr = DistToTargetSqr;
         float attackDistanceSqr = AttackDistance * AttackDistance;
         if (distToTargetSqr > attackDistanceSqr)
         {
@@ -203,7 +210,7 @@ public class Creature : BaseObject
 
         StartWait(delay);
     }
-
+    protected virtual void UpdateDamaged() { } // 정화스킬이 생긴다?
     protected virtual void UpdateDead() { }
     #endregion
 
@@ -231,6 +238,31 @@ public class Creature : BaseObject
     #endregion
 
     #region Battle
+    public void HandleDotDamage(EffectBase effect)
+    {
+        if (effect == null)
+            return;
+        if (effect.Owner.IsValid() == false)
+            return;
+
+        // TEMP
+        float damage = (Hp * effect.EffectData.PercentAdd) + effect.EffectData.Amount;
+        if (effect.EffectData.ClassName.Contains("Heal"))
+            damage *= -1f;
+
+        float finalDamage = Mathf.Round(damage);
+        Hp = Mathf.Clamp(Hp - finalDamage, 0, MaxHp.Value);
+
+        Managers.Object.ShowDamageFont(CenterPosition, finalDamage, transform, false);
+
+        // TODO : OnDamaged 통합
+        if (Hp <= 0)
+        {
+            OnDead(effect.Owner, effect.Skill);
+            CreatureState = CreatureStates.Dead;
+            return;
+        }
+    }
     public override void OnDamaged(BaseObject attacker, SkillBase skill)
     {
         base.OnDamaged(attacker, skill);
@@ -242,12 +274,8 @@ public class Creature : BaseObject
         if (creature == null)
             return;
 
-        //FIXME Cheat
-        //if (CreatureType == CreatureTypes.Player)
-        //    return;
-
-        float finalDamage = creature.Atk; // TODO
-        Hp = Mathf.Clamp(Hp - finalDamage, 0, MaxHp);
+        float finalDamage = creature.Atk.Value; 
+        Hp = Mathf.Clamp(Hp - finalDamage, 0, MaxHp.Value);
 
         Managers.Object.ShowDamageFont(CenterPosition, finalDamage, transform, false);
 
@@ -255,20 +283,28 @@ public class Creature : BaseObject
         {
             OnDead(attacker, skill);
             CreatureState = CreatureStates.Dead;
+            return;
+        }
+
+        //스킬에 따른 이펙트 적용
+        if (skill.SkillData.EffectIds != null)
+            Effects.GenerateEffects(skill.SkillData.EffectIds.ToArray(), EffectSpawnTypes.Skill, skill);
+    
+        //AoE
+        if(skill != null && skill.SkillData.AoEId != 0)
+        {
+            skill.GenerateAoE(transform.position);
         }
     }
 
     public override void OnDead(BaseObject attacker, SkillBase skill)
     {
         base.OnDead(attacker, skill);
-
-
     }
 
     protected void ChaseOrAttackTarget(float chaseRange, float attckRange)
     {
-        Vector3 dir = (Target.transform.position - transform.position);
-        float distToTargetSqr = dir.sqrMagnitude;
+        float distToTargetSqr = DistToTargetSqr;
         float attackDistanceSqr = attckRange * attckRange;
 
 
@@ -374,7 +410,7 @@ public class Creature : BaseObject
             return FindPathResults.Fail_LerpCell;
 
         // A*
-        List<Vector3Int> path = Managers.Map.FindPath(CellPos, destCellPos, maxDepth);
+        List<Vector3Int> path = Managers.Map.FindPath(this, CellPos, destCellPos, maxDepth);
         if (path.Count < 2)
             return FindPathResults.Fail_NoPath;
 

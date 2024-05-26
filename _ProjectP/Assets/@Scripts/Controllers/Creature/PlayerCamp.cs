@@ -37,10 +37,13 @@ public class PlayerCamp : BaseObject
 
         if (Managers.Map == null)
             return;
-        if (Managers.Map.CanGo(newPos, ignoreObjects: true, ignoreSemiWall: true) == false)
+        if (Managers.Map.CanGo(null, newPos, ignoreObjects: true, ignoreSemiWall: true) == false)
             return;
 
         transform.position = newPos;
+
+        //Map Transition
+        Managers.Map.StageTransition.CheckMapChanged(newPos);
     }
 
     private void HandleOnMoveDirChanged(Vector2 dir)

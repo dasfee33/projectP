@@ -17,9 +17,11 @@
       "SkillRange": 0.0,
       "ScaleMultiplier": 1.0,
       "TargetCount": 20,
-      "EffectIds": null,
+      "EffectIds": [
+        60002
+      ],
       "NextLevelId": 0,
-      "AoEId": 0,
+      "AoEId": 80001,
       "EffectSize": 0
     },
     {

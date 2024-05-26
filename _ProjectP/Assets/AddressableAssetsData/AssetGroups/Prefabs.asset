@@ -17,12 +17,6 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: fbf7ed60e8aef8f459b1e9db71952060
   m_SerializeEntries:
-  - m_GUID: 5a40e413d750cdb44b0fe888fbf55284
-    m_Address: BaseMap
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - PreLoad
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0dda577a55b4f9f489235cb2fec6c9b9
     m_Address: Player
     m_ReadOnly: 0
@@ -49,6 +43,30 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0146dde8d04772e49bae95a0bdfcc726
     m_Address: Projectile
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b943df3514966514baaf49c129e307af
+    m_Address: SpellIndicator
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 33ef238c96ca9204380b47e6b0eb297a
+    m_Address: DamageFont
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6822f61760998b348a8109cbe686a9b7
+    m_Address: EffectBase
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e03006f736e29844c82e14ef73cc484d
+    m_Address: AoE
     m_ReadOnly: 0
     m_SerializedLabels:
     - PreLoad

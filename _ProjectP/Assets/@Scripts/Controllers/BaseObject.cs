@@ -8,6 +8,8 @@ using Spine;
 
 public class BaseObject : InitBase
 {
+    public int ExtraCells { get; set; } = 0;
+
     public ObjectTypes ObjectType { get; protected set; } = ObjectTypes.None;
     public CircleCollider2D Collider { get; private set; }
     public SkeletonAnimation SkeletonAnim { get; private set; }
@@ -89,6 +91,13 @@ public class BaseObject : InitBase
     {
         if (SkeletonAnim == null)
             return;
+
+        //Register AnimEvent
+        if(SkeletonAnim.AnimationState != null)
+        {
+            SkeletonAnim.AnimationState.Event -= OnAnimEventHandler;
+            SkeletonAnim.AnimationState.Event += OnAnimEventHandler;
+        }
 
         SkeletonAnim.skeletonDataAsset = Managers.Resource.Load<SkeletonDataAsset>(dataLabel);
         SkeletonAnim.Initialize(true);

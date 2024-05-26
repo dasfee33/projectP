@@ -48,7 +48,7 @@ public class Player : Creature
         if (base.Init() == false)
             return false;
 
-        CreatureType = CreatureTypes.Player;
+        ObjectType = ObjectTypes.Player;
 
         Managers.Game.OnJoystickStateChanged -= HandleOnJoystickStateChanged;
         Managers.Game.OnJoystickStateChanged += HandleOnJoystickStateChanged;
@@ -69,8 +69,8 @@ public class Player : Creature
         CreatureState = CreatureStates.Idle;
 
         // Skill
-        //Skills = gameObject.GetOrAddComponent<SkillComponent>();
-        //Skills.SetInfo(this, CreatureData.SkillIdList);
+        Skills = gameObject.GetOrAddComponent<SkillComponent>();
+        Skills.SetInfo(this, CreatureData);
     }
 
     public Transform PlayerCampDest
@@ -226,10 +226,10 @@ public class Player : Creature
         if ((CellPos - destCellPos).magnitude <= 10)
             return false;
 
-        if (Managers.Map.CanGo(destCellPos, ignoreObjects: true) == false)
+        if (Managers.Map.CanGo(this, destCellPos, ignoreObjects: true) == false)
             return false;
 
-        List<Vector3Int> path = Managers.Map.FindPath(CellPos, destCellPos, 100);
+        List<Vector3Int> path = Managers.Map.FindPath(this, CellPos, destCellPos, 100);
         if (path.Count < 2)
             return false;
 

@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using static Define;
 
@@ -9,6 +11,7 @@ public class ObjectManager
     public List<Monster> Monsters { get; } = new List<Monster>();
     public List<Projectile> Projectiles { get; } = new List<Projectile>();
     public List<Env> Envs { get; } = new List<Env>();
+    public List<EffectBase> Effects { get; } = new List<EffectBase>();
     public PlayerCamp Camp { get; private set; }
 
     #region Roots
@@ -25,6 +28,8 @@ public class ObjectManager
     public Transform MonsterRoot { get { return GetRootTransform("@Monsters"); } }
     public Transform ProjectileRoot { get { return GetRootTransform("@Projectiles"); } }
     public Transform EnvRoot { get { return GetRootTransform("@Envss"); } }
+    public Transform EffectRoot { get { return GetRootTransform("@Effects"); } }
+
     #endregion
 
     public void ShowDamageFont(Vector2 position, float damage, Transform parent, bool isCritical = false)
@@ -32,6 +37,19 @@ public class ObjectManager
         GameObject go = Managers.Resource.Instantiate("DamageFont", pooling: true);
         DamageFont damageText = go.GetComponent<DamageFont>();
         damageText.SetInfo(position, damage, parent, isCritical);
+    }
+
+    public GameObject SpawnGameObject(Vector3 position, string prefabName)
+    {
+        GameObject go = Managers.Resource.Instantiate(prefabName, pooling: true);
+        go.transform.position = position;
+        return go;
+    }
+
+    public T Spawn<T>(Vector3Int cellPos, int templateID) where T : BaseObject
+    {
+        Vector3 spawnPos = Managers.Map.Cell2World(cellPos);
+        return Spawn<T>(spawnPos, templateID);
     }
 
     public T Spawn<T>(Vector3 position, int templateID) where T : BaseObject
@@ -44,24 +62,19 @@ public class ObjectManager
 
         BaseObject obj = go.GetComponent<BaseObject>();
 
-        if (obj.ObjectType == ObjectTypes.Creature)
+        if(obj.ObjectType == ObjectTypes.Player)
         {
-            Creature creature = go.GetComponent<Creature>();
-            switch (creature.CreatureType)
-            {
-                case CreatureTypes.Player:
-                    obj.transform.parent = PlayerRoot;
-                    Player player = creature as Player;
-                    Players.Add(player);
-                    break;
-                case CreatureTypes.Monster:
-                    obj.transform.parent = MonsterRoot;
-                    Monster monster = creature as Monster;
-                    Monsters.Add(monster);
-                    break;
-            }
-
-            creature.SetInfo(templateID);
+            obj.transform.parent = PlayerRoot;
+            Player player = go.GetComponent<Player>();
+            Players.Add(player);
+            player.SetInfo(templateID);
+        }
+        else if(obj.ObjectType == ObjectTypes.Monster)
+        {
+            obj.transform.parent = MonsterRoot;
+            Monster monster = go.GetComponent<Monster>();
+            Monsters.Add(monster);
+            monster.SetInfo(templateID);
         }
         else if (obj.ObjectType == ObjectTypes.Projectile)
         {
@@ -94,20 +107,15 @@ public class ObjectManager
     {
         ObjectTypes objectType = obj.ObjectType;
 
-        if (obj.ObjectType == ObjectTypes.Creature)
+        if (obj.ObjectType == ObjectTypes.Player)
         {
-            Creature creature = obj.GetComponent<Creature>();
-            switch (creature.CreatureType)
-            {
-                case CreatureTypes.Player:
-                    Player player = creature as Player;
-                    Players.Remove(player);
-                    break;
-                case CreatureTypes.Monster:
-                    Monster monster = creature as Monster;
-                    Monsters.Remove(monster);
-                    break;
-            }
+            Player player = obj.GetComponent<Player>();
+            Players.Remove(player);
+        }
+        else if (obj.ObjectType == ObjectTypes.Monster)
+        {
+            Monster monster = obj.GetComponent<Monster>();
+            Monsters.Remove(monster);
         }
         else if (obj.ObjectType == ObjectTypes.Projectile)
         {
@@ -118,6 +126,11 @@ public class ObjectManager
         {
             Env env = obj as Env;
             Envs.Remove(env);
+        }
+        else if (obj.ObjectType == ObjectTypes.Effect)
+        {
+            EffectBase effect = obj as EffectBase;
+            Effects.Remove(effect);
         }
         else if (obj.ObjectType == ObjectTypes.PlayerCamp)
         {
@@ -133,14 +146,14 @@ public class ObjectManager
         List<Creature> targets = new List<Creature>();
         List<Creature> ret = new List<Creature>();
 
-        CreatureTypes targetType = Util.DetermineTargetType(owner.CreatureType, isAllies);
+        ObjectTypes targetType = Util.DetermineTargetType(owner.ObjectType, isAllies);
 
-        if (targetType == CreatureTypes.Monster)
+        if (targetType == ObjectTypes.Monster)
         {
             var objs = Managers.Map.GatherObjects<Monster>(owner.transform.position, range, range);
             targets.AddRange(objs);
         }
-        else if (targetType == CreatureTypes.Player)
+        else if (targetType == ObjectTypes.Player)
         {
             var objs = Managers.Map.GatherObjects<Player>(owner.transform.position, range, range);
             targets.AddRange(objs);
@@ -172,6 +185,37 @@ public class ObjectManager
         }
 
         return ret;
+    }
+
+    public List<Creature> FindCircleRangeTargets(Creature owner, Vector3 startPos, float range, bool isAllies = false)
+    {
+        HashSet<Creature> targets = new HashSet<Creature>();
+        HashSet<Creature> ret = new HashSet<Creature>();
+
+        ObjectTypes targetType = Util.DetermineTargetType(owner.ObjectType, isAllies);
+
+        if (targetType == ObjectTypes.Monster)
+        {
+            var objs = Managers.Map.GatherObjects<Monster>(owner.transform.position, range, range);
+            targets.AddRange(objs);
+        }
+        else if (targetType == ObjectTypes.Player)
+        {
+            var objs = Managers.Map.GatherObjects<Player>(owner.transform.position, range, range);
+            targets.AddRange(objs);
+        }
+
+        foreach (var target in targets)
+        {
+            // 1. 거리안에 있는지 확인
+            var targetPos = target.transform.position;
+            float distSqr = (targetPos - startPos).sqrMagnitude;
+
+            if (distSqr < range * range)
+                ret.Add(target);
+        }
+
+        return ret.ToList();
     }
 
     #endregion

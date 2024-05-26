@@ -17,14 +17,14 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: d130e9eb315689f4eb01560344228481
   m_SerializeEntries:
-  - m_GUID: b3216f9a8939d554ca2ebadaa61f6b22
-    m_Address: 005_SkeletonData
+  - m_GUID: 76d3eb1c77a7e3c4180773fd08350fc0
+    m_Address: 003_SkeletonData
     m_ReadOnly: 0
     m_SerializedLabels:
     - PreLoad
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 76d3eb1c77a7e3c4180773fd08350fc0
-    m_Address: 003_SkeletonData
+  - m_GUID: b3216f9a8939d554ca2ebadaa61f6b22
+    m_Address: 005_SkeletonData
     m_ReadOnly: 0
     m_SerializedLabels:
     - PreLoad
@@ -43,6 +43,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e42fb9220d96d7e4c86a9de95818b96b
     m_Address: wood_2_SkeletonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 378dd7a7a523b164496aa5b261580005
+    m_Address: bear_SkeletonData
     m_ReadOnly: 0
     m_SerializedLabels:
     - PreLoad
@@ -71,8 +77,8 @@ MonoBehaviour:
     m_SerializedLabels:
     - PreLoad
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 287bf67f9794be145b580ccc6a4d3a65
-    m_Address: 004_SkeletonData
+  - m_GUID: 9b77f658e56e14e48a2f5aeda6bead62
+    m_Address: 002_SkeletonData
     m_ReadOnly: 0
     m_SerializedLabels:
     - PreLoad
@@ -83,8 +89,92 @@ MonoBehaviour:
     m_SerializedLabels:
     - PreLoad
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 9b77f658e56e14e48a2f5aeda6bead62
-    m_Address: 002_SkeletonData
+  - m_GUID: 287bf67f9794be145b580ccc6a4d3a65
+    m_Address: 004_SkeletonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 412e86c0477da6a42be997234cf0dd49
+    m_Address: buff_blood_up_SkeletonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 350095c80b7108043a7ab0d94276b5d4
+    m_Address: debuff_freezing_SkeletonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f56ff53c22d27df4aa187dd5c2caf54f
+    m_Address: debuff_burning_SkeletonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bb66a3ab50dd92142af4a227daa67639
+    m_Address: chloe_skill_1_SkeletonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: db99d3af36e18d94fa4d82ce5255f856
+    m_Address: buff_attack_speed_SkeletonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4f3bb8bb48f0e7346b62204f1fa35dea
+    m_Address: debuff_poison_1_SkeletonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e08eef4aa88f9d54892b3030c980a1c4
+    m_Address: 006_SkeletonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b473b514912b8804aa13a19894b6d4eb
+    m_Address: 020_SkeletonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c7c834880c8d8774da453c252b4185a6
+    m_Address: 022_SkeletonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 417beed044cd3a04184c7c6caba85ecb
+    m_Address: loren_skill_1_SkeletonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b512cac7257e3c04898ae7be6e0db84b
+    m_Address: veti_skill_1_SkeletonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 16ded4fc60393844ab24e93e03be843d
+    m_Address: loren_skill_2_SkeletonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9af7977422e9aec43b8a9a1140ccf692
+    m_Address: owen_skill_1_SkeletonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dd225f6bb768c5444800dfbd27118acd
+    m_Address: owen_skill_2_SkeletonData
     m_ReadOnly: 0
     m_SerializedLabels:
     - PreLoad

@@ -58,19 +58,29 @@ public class MapEditor : MonoBehaviour
         Dictionary<int, Data.MonsterData> MonsterDic = LoadJson<Data.MonsterDataLoader, int, Data.MonsterData>("MonsterData").MakeDict();
         foreach (var data in MonsterDic.Values)
         {
-            CustomTile customTile = ScriptableObject.CreateInstance<CustomTile>();
-            customTile.Name = data.DescriptionTextID;
-            customTile.DataTemplateID = data.DataId;
-            customTile.ObjectType = Define.ObjectTypes.Creature;
-            customTile.CreatureType = Define.CreatureTypes.Monster;
-
-            string name = $"{data.DataId}_{data.DescriptionTextID}";
-            string path = "Assets/@Resources/TileMaps/Tiles/Dev/Monster";
-            path = Path.Combine(path, $"{name}.Asset");
-
-            if (File.Exists(path))
+            if (data.DataId < 202000)
                 continue;
 
+            CustomTile customTile = ScriptableObject.CreateInstance<CustomTile>();
+            customTile.Name = data.DescriptionTextID;
+            string spriteName = data.IconImage;
+            spriteName = spriteName.Replace(".sprite", "");
+
+            Sprite spr = AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/@Resources/Sprites/Monsters/{spriteName}.png");
+            customTile.sprite = spr;
+            customTile.DataId = data.DataId;
+            customTile.ObjectType = Define.ObjectTypes.Monster;
+            string name = $"{data.DataId}_{data.DescriptionTextID}";
+            string path = "Assets/@Resources/TileMaps/01_asset/dev/Monster";
+            path = Path.Combine(path, $"{name}.Asset");
+
+            if (path == "")
+                continue;
+
+            if (File.Exists(path))
+            {
+                continue;
+            }
             AssetDatabase.CreateAsset(customTile, path);
         }
 
@@ -81,17 +91,20 @@ public class MapEditor : MonoBehaviour
 
             CustomTile customTile = ScriptableObject.CreateInstance<CustomTile>();
             customTile.Name = data.DescriptionTextID;
-            customTile.DataTemplateID = data.DataId;
+            customTile.DataId = data.DataId;
             customTile.ObjectType = Define.ObjectTypes.Env;
-            customTile.CreatureType = Define.CreatureTypes.None;
 
             string name = $"{data.DataId}_{data.DescriptionTextID}";
-            string path = "Assets/@Resources/TileMaps/Tiles/Dev/Env";
+            string path = "Assets/@Resources/TileMaps/01_asset/dev/Env";
             path = Path.Combine(path, $"{name}.Asset");
 
-            if (File.Exists(path))
+            if (path == "")
                 continue;
 
+            if (File.Exists(path))
+            {
+                continue;
+            }
             AssetDatabase.CreateAsset(customTile, path);
         }
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using static Define;
@@ -14,6 +15,7 @@ public class MapManager
 
     // cellPos, baseObject
     Dictionary<Vector3Int, BaseObject> _cells = new Dictionary<Vector3Int, BaseObject>();
+    public StageTransition StageTransition;
 
     private int MinX;
     private int MaxX;
@@ -32,6 +34,8 @@ public class MapManager
         GameObject map = Managers.Resource.Instantiate(mapName);
         map.transform.position = Vector3.zero;
         map.name = $"@Map_{mapName}";
+
+        StageTransition = map.GetComponent<StageTransition>();
 
         Map = map;
         MapName = mapName;
@@ -97,41 +101,13 @@ public class MapManager
         if (tm != null)
             tm.gameObject.SetActive(false);
 
-        for (int y = tm.cellBounds.yMax; y >= tm.cellBounds.yMin; y--)
-        {
-            for (int x = tm.cellBounds.xMin; x <= tm.cellBounds.xMax; x++)
-            {
-                Vector3Int cellPos = new Vector3Int(x, y, 0);
-                CustomTile tile = tm.GetTile(cellPos) as CustomTile;
-                if (tile == null)
-                    continue;
-
-                if (tile.ObjectType == Define.ObjectTypes.Env)
-                {
-                    Vector3 worldPos = Cell2World(cellPos);
-                    Env env = Managers.Object.Spawn<Env>(worldPos, tile.DataTemplateID);
-                    env.SetCellPos(cellPos, true);
-                }
-                else
-                {
-                    if (tile.CreatureType == Define.CreatureTypes.Monster)
-                    {
-                        Vector3 worldPos = Cell2World(cellPos);
-                        Monster monster = Managers.Object.Spawn<Monster>(worldPos, tile.DataTemplateID);
-                        monster.SetCellPos(cellPos, true);
-                    }
-                    else if (tile.CreatureType == Define.CreatureTypes.Npc)
-                    {
-
-                    }
-                }
-            }
-        }
+        //TEMP
+        return;
     }
 
     public bool MoveTo(Creature obj, Vector3Int cellPos, bool forceMove = false)
     {
-        if (CanGo(cellPos) == false)
+        if (CanGo(obj, cellPos) == false)
             return false;
 
         // 기존 좌표에 있던 오브젝트를 밀어준다.
@@ -153,7 +129,7 @@ public class MapManager
 
     public List<T> GatherObjects<T>(Vector3 pos, float rangeX, float rangeY) where T : BaseObject
     {
-        List<T> objects = new List<T>();
+        HashSet<T> objects = new HashSet<T>();
 
         Vector3Int left = World2Cell(pos + new Vector3(-rangeX, 0));
         Vector3Int right = World2Cell(pos + new Vector3(+rangeX, 0));
@@ -179,7 +155,7 @@ public class MapManager
             }
         }
 
-        return objects;
+        return objects.ToList();
     }
 
     public BaseObject GetObject(Vector3Int cellPos)
@@ -195,43 +171,75 @@ public class MapManager
         return GetObject(cellPos);
     }
 
-    public bool RemoveObject(BaseObject obj)
+    private void RemoveObject(BaseObject obj)
     {
-        BaseObject prev = GetObject(obj.CellPos);
+        // 기존의 좌표 제거
+        int extraCells = 0;
+        if (obj != null)
+            extraCells = obj.ExtraCells;
 
-        // 처음 신청했으면 해당 CellPos의 오브젝트가 본인이 아닐 수도 있음
-        if (prev != obj)
-            return false;
+        Vector3Int cellPos = obj.CellPos;
 
-        _cells[obj.CellPos] = null;
+        for (int dx = -extraCells; dx <= extraCells; dx++)
+        {
+            for (int dy = -extraCells; dy <= extraCells; dy++)
+            {
+                Vector3Int newCellPos = new Vector3Int(cellPos.x + dx, cellPos.y + dy);
+                BaseObject prev = GetObject(newCellPos);
+
+                if (prev == obj)
+                    _cells[newCellPos] = null;
+            }
+        }
+    }
+
+    private void AddObject(BaseObject obj, Vector3Int cellPos)
+    {
+        int extraCells = 0;
+        if (obj != null)
+            extraCells = obj.ExtraCells;
+
+        for (int dx = -extraCells; dx <= extraCells; dx++)
+        {
+            for (int dy = -extraCells; dy <= extraCells; dy++)
+            {
+                Vector3Int newCellPos = new Vector3Int(cellPos.x + dx, cellPos.y + dy);
+
+                BaseObject prev = GetObject(newCellPos);
+                if (prev != null && prev != obj)
+                    Debug.LogWarning($"AddObject 수상함");
+
+                _cells[newCellPos] = obj;
+            }
+        }
+    }
+
+    public bool CanGo(BaseObject self, Vector3 worldPos, bool ignoreObjects = false, bool ignoreSemiWall = false)
+    {
+        return CanGo(self, World2Cell(worldPos), ignoreObjects, ignoreSemiWall);
+    }
+
+    public bool CanGo(BaseObject self, Vector3Int cellPos, bool ignoreObjects = false, bool ignoreSemiWall = false)
+    {
+        int extraCells = 0;
+        if (self != null)
+            extraCells = self.ExtraCells;
+
+        for (int dx = -extraCells; dx <= extraCells; dx++)
+        {
+            for (int dy = -extraCells; dy <= extraCells; dy++)
+            {
+                Vector3Int checkPos = new Vector3Int(cellPos.x + dx, cellPos.y + dy);
+
+                if (CanGo_Internal(self, checkPos, ignoreObjects, ignoreSemiWall) == false)
+                    return false;
+            }
+        }
+
         return true;
     }
 
-    public bool AddObject(BaseObject obj, Vector3Int cellPos)
-    {
-        if (CanGo(cellPos) == false)
-        {
-            Debug.LogWarning($"AddObject Failed");
-            return false;
-        }
-
-        BaseObject prev = GetObject(cellPos);
-        if (prev != null)
-        {
-            Debug.LogWarning($"AddObject Failed");
-            return false;
-        }
-
-        _cells[cellPos] = obj;
-        return true;
-    }
-
-    public bool CanGo(Vector3 worldPos, bool ignoreObjects = false, bool ignoreSemiWall = false)
-    {
-        return CanGo(World2Cell(worldPos), ignoreObjects, ignoreSemiWall);
-    }
-
-    public bool CanGo(Vector3Int cellPos, bool ignoreObjects = false, bool ignoreSemiWall = false)
+    bool CanGo_Internal(BaseObject self, Vector3Int cellPos, bool ignoreObjects = false, bool ignoreSemiWall = false)
     {
         if (cellPos.x < MinX || cellPos.x > MaxX)
             return false;
@@ -241,7 +249,7 @@ public class MapManager
         if (ignoreObjects == false)
         {
             BaseObject obj = GetObject(cellPos);
-            if (obj != null)
+            if (obj != null && obj != self)
                 return false;
         }
 
@@ -290,7 +298,7 @@ public class MapManager
 		new Vector3Int(-1, 1, 0), // LU
 	};
 
-    public List<Vector3Int> FindPath(Vector3Int startCellPos, Vector3Int destCellPos, int maxDepth = 10)
+    public List<Vector3Int> FindPath(BaseObject self, Vector3Int startCellPos, Vector3Int destCellPos, int maxDepth = 10)
     {
         // 지금까지 제일 좋은 후보 기록.
         Dictionary<Vector3Int, int> best = new Dictionary<Vector3Int, int>();
@@ -335,7 +343,7 @@ public class MapManager
                 Vector3Int next = pos + delta;
 
                 // 갈 수 없는 장소면 스킵.
-                if (CanGo(next) == false)
+                if (CanGo(self, next) == false)
                     continue;
 
                 // 예약 진행

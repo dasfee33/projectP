@@ -40,10 +40,10 @@ public class SkillComponent : InitBase
     {
         _owner = owner;
 
-        AddSkill(creatureData.DefaultSkillId, SkillSlots.Default);
-        AddSkill(creatureData.EnvSkillId, SkillSlots.Env);
-        AddSkill(creatureData.SkillAId, SkillSlots.A);
-        AddSkill(creatureData.SkillBId, SkillSlots.B);
+        AddSkill(creatureData.DefaultSkill, SkillSlots.Default);
+        AddSkill(creatureData.EnvSkill, SkillSlots.Env);
+        AddSkill(creatureData.SkillA, SkillSlots.A);
+        AddSkill(creatureData.SkillB, SkillSlots.B);
     }
 
     public void AddSkill(int skillTemplateID, Define.SkillSlots skillSlot)
