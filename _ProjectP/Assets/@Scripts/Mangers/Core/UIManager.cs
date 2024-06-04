@@ -10,6 +10,7 @@ public class UIManager
 {
     private int _order = 10;
 
+    private Dictionary<string, UI_Popup> _popups = new Dictionary<string, UI_Popup>();
     private Stack<UI_Popup> _popupStack = new Stack<UI_Popup>();
 
     private UI_Always _alwaysUI = null;
@@ -28,6 +29,14 @@ public class UIManager
                 root = new GameObject { name = "@UI_Root" };
             return root;
         }
+    }
+
+    public void CacheAllPopups()
+    {
+        ShowPopupUI<UI_WaypointPopup>();
+        //TODO ADD
+
+        CloseAllPopupUI();
     }
 
     public void SetCanvas(GameObject go, bool sort = true, int sortOrder = 0)
@@ -123,13 +132,19 @@ public class UIManager
         if (string.IsNullOrEmpty(name))
             name = typeof(T).Name;
 
-        GameObject go = Managers.Resource.Instantiate(name);
-        T popup = Util.GetOrAddComponent<T>(go);
+        if(_popups.TryGetValue(name, out UI_Popup popup) == false)
+        {
+            GameObject go = Managers.Resource.Instantiate(name);
+            popup = Util.GetOrAddComponent<T>(go);
+            _popups[name] = popup;
+        }
+
         _popupStack.Push(popup);
 
-        go.transform.SetParent(Root.transform);
+        popup.transform.SetParent(Root.transform);
+        popup.gameObject.SetActive(true);
 
-        return popup;
+        return popup as T;
     }
 
     public void ClosePopupUI(UI_Popup popup)
@@ -152,7 +167,9 @@ public class UIManager
             return;
 
         UI_Popup popup = _popupStack.Pop();
-        Managers.Resource.Destroy(popup.gameObject);
+
+        popup.gameObject.SetActive(false);
+        //Managers.Resource.Destroy(popup.gameObject);
         _order--;
     }
 

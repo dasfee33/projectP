@@ -16,7 +16,151 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: 6c96c97b08e0b4445a2504b872aecbb8
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: e00805196e6425f4d890a35daf96630c
+    m_Address: wizard_shot
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7f305a13e5a09d745aa2caad68a42f09
+    m_Address: 005
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: df5a174febf900c4684d036abe0ffddd
+    m_Address: knight_idle_1
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 48cfaf611b8d215429ff429ca780f6ba
+    m_Address: 004
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 33659c2c4826c804198316eac9a0ea59
+    m_Address: 003
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 545ceaea9170c2143982b43b2630ad1f
+    m_Address: 001
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 87be567af8c46254fab00cafb7eb3a37
+    m_Address: 020
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a220d26002e74134a9f522e1f3b60874
+    m_Address: 002
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b84e434f50b47294eaebd8c2be0797ee
+    m_Address: bear
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2b347b924e09dca4b8d3cfaf0bd54835
+    m_Address: whildboar
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c37588462a5ea2c4d856d434bdf1ef28
+    m_Address: spider_common
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3f46d7c5c8e8d5f4bb2ef92e9d0c9d6f
+    m_Address: slime
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b21ad71a3c677994fa4f41c7e4dcf6c5
+    m_Address: spider_rare
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cc3146a347818bc45a9d293c32669bc8
+    m_Address: goblin_shot
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 80a62f52ea64bba4e9f59cff975b5056
+    m_Address: woodman
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7bd0ae4e5272e834284e4e0e1d826395
+    m_Address: goblin
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b9c923444bc264e47b6ecb55566121dd
+    m_Address: smith_body
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 75f02685dfae4494b96cce29ffb2f7a0
+    m_Address: potal_body
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b091d80009718f24897584f5136a20da
+    m_Address: npc_training_head
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5c90b8a7f4b779445a2e18c390cce1b4
+    m_Address: portal_a_effect_1
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 653afb33924179340a3e2d914097552a
+    m_Address: npc_camp_base
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5a79b6bd201e3d64eac8e48abe0d5aa8
+    m_Address: Object_Firewood
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2b3a445023c6f67419b4d6e26df16af4
+    m_Address: Object_Meat
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5a40e413d750cdb44b0fe888fbf55284
+    m_Address: BaseMap
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - PreLoad
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: ab42807b09470c04fbe211594d0bc8ba, type: 2}
   m_SchemaSet:

@@ -38,6 +38,17 @@ public static class Define
         Effect,
     }
 
+    public enum NpcTypes
+    {
+        Camp,
+        Portal,
+        Waypoint,
+        BlackSmith,
+        Guild,
+        TreasureBox,
+        Dungeon
+    }
+
     public enum CreatureStates
     {
         None,
@@ -236,6 +247,7 @@ public static class Define
         public const int SPELL_INDICATOR = 200;
         public const int CREATURE = 300;
         public const int ENV = 300;
+        public const int NPC = 310;
         public const int PROJECTILE = 310;
         public const int SKILL_EFFECT = 310;
         public const int DAMAGE_FONT = 410;
