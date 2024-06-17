@@ -1,10 +1,93 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Data;
 using UnityEngine;
+
+[Serializable]
+public class GameSaveData
+{
+    public int Wood = 0;
+    public int Mineral = 0;
+    public int Meat = 0;
+    public int Gold = 0;
+
+    public List<PlayerSaveData> Players = new List<PlayerSaveData>();
+}
+
+[Serializable]
+public class PlayerSaveData
+{
+    public int DataId = 0;
+    public int Level = 1;
+    public int Exp = 0;
+    public PlayerOwningState OwningState = PlayerOwningState.Unowned;
+}
+
+public enum PlayerOwningState
+{
+    Unowned,
+    Owned,
+    Picked,
+}
 
 public class GameManager
 {
+    #region GameData
+    GameSaveData _saveData = new GameSaveData();
+    public GameSaveData SaveData { get { return _saveData; } set { _saveData = value; } }
+
+    public int Wood
+    {
+        get { return _saveData.Wood; }
+        private set
+        {
+            _saveData.Wood = value;
+            //(Managers.UI.SceneUI as UI_GameScene)?.RefreshWoodText();
+        }
+    }
+
+    public int Mineral
+    {
+        get { return _saveData.Mineral; }
+        private set
+        {
+            _saveData.Mineral = value;
+            //(Managers.UI.SceneUI as UI_GameScene)?.RefreshMineralText();
+        }
+    }
+
+    public int Meat
+    {
+        get { return _saveData.Meat; }
+        private set
+        {
+            _saveData.Meat = value;
+            //(Managers.UI.SceneUI as UI_GameScene)?.RefreshMeatText();
+        }
+    }
+
+    public int Gold
+    {
+        get { return _saveData.Gold; }
+        private set
+        {
+            _saveData.Gold = value;
+            //(Managers.UI.SceneUI as UI_GameScene)?.RefreshGoldText();
+        }
+    }
+
+    public List<PlayerSaveData> AllPlayers { get { return _saveData.Players; } }
+    public int TotalPlayerCount { get { return _saveData.Players.Count; } }
+    public int UnownedPlayerCount { get { return _saveData.Players.Where(h => h.OwningState == PlayerOwningState.Unowned).Count(); } }
+    public int OwnedPlayerCount { get { return _saveData.Players.Where(h => h.OwningState == PlayerOwningState.Owned).Count(); } }
+    public int PickedPlayerCount { get { return _saveData.Players.Where(h => h.OwningState == PlayerOwningState.Picked).Count(); } }
+    
+    
+    #endregion
+
     #region Player
     private Vector2 moveDir;
     public Vector2 MoveDir
@@ -65,6 +148,53 @@ public class GameManager
         Debug.LogError($"GetNearbyPosition Failed");
 
         return Vector3Int.zero;
+    }
+    #endregion
+
+    #region Save & Load	
+    public string Path { get { return Application.persistentDataPath + "/SaveData.json"; } }
+
+    public void InitGame()
+    {
+        if (File.Exists(Path))
+            return;
+
+        var players = Managers.Data.PlayerDic.Values.ToList();
+        foreach (PlayerData player in players)
+        {
+            PlayerSaveData saveData = new PlayerSaveData() 
+            {
+                DataId = player.DataId,
+            };
+
+            SaveData.Players.Add(saveData);
+        }
+
+        // TEMP
+        SaveData.Players[0].OwningState = PlayerOwningState.Picked;
+        SaveData.Players[1].OwningState = PlayerOwningState.Owned;
+    }
+
+    public void SaveGame()
+    {
+        string jsonStr = JsonUtility.ToJson(Managers.Game.SaveData);
+        File.WriteAllText(Path, jsonStr);
+        Debug.Log($"Save Game Completed : {Path}");
+    }
+
+    public bool LoadGame()
+    {
+        if (File.Exists(Path) == false)
+            return false;
+
+        string fileStr = File.ReadAllText(Path);
+        GameSaveData data = JsonUtility.FromJson<GameSaveData>(fileStr);
+
+        if (data != null)
+            Managers.Game.SaveData = data;
+
+        Debug.Log($"Save Game Loaded : {Path}");
+        return true;
     }
     #endregion
 

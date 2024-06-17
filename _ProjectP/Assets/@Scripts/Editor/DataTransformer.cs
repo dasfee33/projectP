@@ -13,17 +13,34 @@ using System.ComponentModel;
 public class DataTransformer : EditorWindow
 {
 #if UNITY_EDITOR
+    [MenuItem("Tools/RemoveSaveData")]
+    public static void RemoveSaveData()
+    {
+        string path = Application.persistentDataPath + "/SaveData.json";
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+            Debug.Log("SaveFile Deleted");
+        }
+        else
+        {
+            Debug.Log("No SaveFile Detected");
+        }
+    }
+
     [MenuItem("Tools/ParseExcel %#K")]
     public static void ParseExcelDataToJson()
     {
         ParseExcelDataToJson<MonsterDataLoader, MonsterData>("Monster");
         ParseExcelDataToJson<PlayerDataLoader, PlayerData>("Player");
+        ParseExcelDataToJson<PlayerInfoDataLoader, PlayerInfoData>("PlayerInfo");
         ParseExcelDataToJson<SkillDataLoader, SkillData>("Skill");
         ParseExcelDataToJson<ProjectileDataLoader, ProjectileData>("Projectile");
         ParseExcelDataToJson<EnvDataLoader, EnvData>("Env");
         ParseExcelDataToJson<EffectDataLoader, EffectData>("Effect");
         ParseExcelDataToJson<AoEDataLoader, AoEData>("AoE");
         ParseExcelDataToJson<NpcDataLoader, NpcData>("Npc");
+        ParseExcelDataToJson<TextDataLoader, TextData>("Text");
 
         Debug.Log("DataTransformer Completed");
     }
