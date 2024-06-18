@@ -24,7 +24,7 @@ MonoBehaviour:
     - PreLoad
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7f305a13e5a09d745aa2caad68a42f09
-    m_Address: 005
+    m_Address: 005.sprite
     m_ReadOnly: 0
     m_SerializedLabels:
     - PreLoad
@@ -36,31 +36,31 @@ MonoBehaviour:
     - PreLoad
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 48cfaf611b8d215429ff429ca780f6ba
-    m_Address: 004
+    m_Address: 004.sprite
     m_ReadOnly: 0
     m_SerializedLabels:
     - PreLoad
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 33659c2c4826c804198316eac9a0ea59
-    m_Address: 003
+    m_Address: 003.sprite
     m_ReadOnly: 0
     m_SerializedLabels:
     - PreLoad
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 545ceaea9170c2143982b43b2630ad1f
-    m_Address: 001
+    m_Address: 001.sprite
     m_ReadOnly: 0
     m_SerializedLabels:
     - PreLoad
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 87be567af8c46254fab00cafb7eb3a37
-    m_Address: 020
+    m_Address: 020.sprite
     m_ReadOnly: 0
     m_SerializedLabels:
     - PreLoad
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a220d26002e74134a9f522e1f3b60874
-    m_Address: 002
+    m_Address: 002.sprite
     m_ReadOnly: 0
     m_SerializedLabels:
     - PreLoad
