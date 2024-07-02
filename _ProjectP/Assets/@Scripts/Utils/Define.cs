@@ -36,6 +36,7 @@ public static class Define
         Projectile,
         Env,
         Effect,
+        ItemHolder,
     }
 
     public enum NpcTypes
@@ -193,6 +194,15 @@ public static class Define
         CleanDebuff,
     }
 
+    public enum ItemGrade
+    {
+        None,
+        Normal,
+        Rare,
+        Epic,
+        Legendary,
+    }
+
     public enum Languages
     {
         Korean,
@@ -201,6 +211,44 @@ public static class Define
         SimplifiedChinese,
         TraditionalChinese,
         Japanese
+    }
+
+    public enum ItemGroupTypes
+    {
+        None,
+        Equipment,
+        Consumable,
+
+    }
+
+    public enum ItemTypes
+    {
+        None,
+        Weapon,
+        Armor,
+        Potion,
+        Scroll,
+    }
+
+    public enum ItemSubTypes
+    {
+        None,
+
+        Sword,
+        Dagger,
+        Bow,
+
+        Helmet,
+        Armor,
+        Shield,
+        Gloves,
+        Shoes,
+
+        EnchantWeapon,
+        EnchantArmor,
+
+        HealthPotion,
+        ManaPotion,
     }
 
     public const float EFFECT_SMALL_RADIUS = 2.5f;

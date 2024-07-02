@@ -15,8 +15,10 @@ public class GameScene : BaseScene
         Managers.Map.LoadMap("BaseMap");
         Managers.Map.StageTransition.SetInfo();
 
+        var cellPos = Managers.Map.World2Cell(new Vector3(-100, -66));
+
         PlayerCamp camp = Managers.Object.Spawn<PlayerCamp>(Vector3.zero, 0);
-        camp.SetCellPos(new Vector3Int(0, 0, 0), true);
+        camp.SetCellPos(cellPos, true);
 
         for(int i = 0; i < 1; i++)
         {
@@ -24,13 +26,13 @@ public class GameScene : BaseScene
             //if (i == 0 || i == 1) playerTemplateID = HERO_KNIGHT_ID + Random.Range(0, 4);
             //else playerTemplateID = HERO_KNIGHT_ID;
 
-            Vector3Int randCellPos = new Vector3Int(0 + Random.Range(-3, 3), 0 + Random.Range(-3, 3), 0);
-            if (Managers.Map.CanGo(null, randCellPos) == false)
-                continue;
+            //Vector3Int randCellPos = new Vector3Int(0 + Random.Range(-3, 3), 0 + Random.Range(-3, 3), 0);
+            //if (Managers.Map.CanGo(null, randCellPos) == false)
+            //    continue;
 
             Player player = Managers.Object.Spawn<Player>(new Vector3Int(1, 0, 0), playerTemplateID);
             //player.SetCellPos(randCellPos, true);
-            Managers.Map.MoveTo(player, randCellPos, true);
+            Managers.Map.MoveTo(player, cellPos, true);
         }
         
         CameraController camera = Camera.main.GetOrAddComponent<CameraController>();

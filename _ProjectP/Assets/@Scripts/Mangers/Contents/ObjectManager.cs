@@ -14,6 +14,7 @@ public class ObjectManager
     public List<EffectBase> Effects { get; } = new List<EffectBase>();
     public List<Npc> Npcs { get; } = new List<Npc>();
     public PlayerCamp Camp { get; private set; }
+    public HashSet<ItemHolder> ItemHolders { get; } = new HashSet<ItemHolder>();
 
     #region Roots
     public Transform GetRootTransform(string name)
@@ -31,6 +32,7 @@ public class ObjectManager
     public Transform EnvRoot { get { return GetRootTransform("@Envss"); } }
     public Transform EffectRoot { get { return GetRootTransform("@Effects"); } }
     public Transform NpcRoot { get { return GetRootTransform("@Npcs"); } }
+    public Transform ItemHolderRoot { get { return GetRootTransform("@ItemHolders"); } }
 
     #endregion
 
@@ -111,6 +113,13 @@ public class ObjectManager
             npc.SetInfo(templateID);
 
         }
+        else if(obj.ObjectType == ObjectTypes.ItemHolder)
+        {
+            obj.transform.parent = ItemHolderRoot;
+
+            ItemHolder itemHolder = go.GetOrAddComponent<ItemHolder>();
+            ItemHolders.Add(itemHolder);
+        }
 
         return obj as T;
     }
@@ -152,6 +161,11 @@ public class ObjectManager
         {
             Npc npc = obj as Npc;
             Npcs.Remove(npc);
+        }
+        else if (obj.ObjectType == ObjectTypes.ItemHolder)
+        {
+            ItemHolder itemHolder = obj as ItemHolder;
+            ItemHolders.Remove(itemHolder);
         }
 
         Managers.Resource.Destroy(obj.gameObject);
