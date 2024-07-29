@@ -371,7 +371,7 @@ namespace Data
 
     public class RewardData
     {
-        public int Probability; // 100ºÐÀ²
+        public int Probability; // 100ë¶„ìœ¨
         public int ItemTemplateId;
         // public int Count;
     }
@@ -465,5 +465,52 @@ namespace Data
     }
 
 
+    #endregion
+
+    #region QuestData
+
+    [Serializable]
+    public class QuestData
+    {
+        public int TemplateId;
+        public string DescriptionTextId;
+        public QuestPeriodTypes QuestPeriodType; //NPC?
+        public int ResetPeriod; // ë¦¬ì…‹ ì£¼ê¸°
+
+        public QuestConditions Condition;
+        public List<QuestTaskData> QuestTasks = new List<QuestTaskData>();
+        public List<QuestRewardData> Rewards = new List<QuestRewardData>();
+    }
+
+    [Serializable]
+    public class QuestTaskData
+    {
+        public QuestTaskTypes QuestTaskType;
+        public string DescriptionTextId;
+
+        public int TaskDataId;
+        public int TaskCount;
+    }
+
+    [Serializable]
+    public class QuestRewardData
+    {
+        public QuestRewardTypes RewardType;
+        public int RewardDataId;
+        public int RewardCount;
+    }
+
+    [Serializable]
+    public class QuestDataLoader : ILoader<int, QuestData>
+    {
+        public List<QuestData> quests = new List<QuestData>();
+        public Dictionary<int, QuestData> MakeDict()
+        {
+            Dictionary<int, QuestData> dict = new Dictionary<int, QuestData>();
+            foreach (QuestData quest in quests)
+                dict.Add(quest.TemplateId, quest);
+            return dict;
+        }
+    }
     #endregion
 }

@@ -113,7 +113,7 @@ public class Monster : Creature
             // Chase
             ChaseOrAttackTarget(MONSTER_SEARCH_DISTANCE, AttackDistance);
 
-            // ³Ê¹« ¸Ö¾îÁö¸é Æ÷±â.
+            // ë„ˆë¬´ ë©€ì–´ì§€ë©´ í¬ê¸°.
             if (Target.IsValid() == false)
             {
                 Target = null;
@@ -165,6 +165,9 @@ public class Monster : Creature
             Vector2 dropPos = Random.value < 0.5 ? ran : ran2;
             itemHolder.SetInfo(0, rewardData.ItemTemplateId, dropPos);
         }
+
+        //BroadCast
+        Managers.Game.BroadcastEvent(BroadcastEventTypes.KillMonster, MonsterData.DataId);
 
         Managers.Object.Despawn(this);
     }

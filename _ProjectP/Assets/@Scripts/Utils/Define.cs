@@ -162,16 +162,16 @@ public static class Define
 
     public enum EffectSpawnTypes
     {
-        Skill, // Áö¼Ó½Ã°£ÀÌ ÀÖ´Â ±âº»ÀûÀÎ ÀÌÆåÆ® 
-        External, // ¿ÜºÎ(ÀåÆÇ½ºÅ³)¿¡¼­ ÀÌÆåÆ®¸¦ °ü¸®(Áö¼Ó½Ã°£¿¡ ¿µÇâÀ» ¹ŞÁö¾ÊÀ½)
+        Skill, // ì§€ì†ì‹œê°„ì´ ìˆëŠ” ê¸°ë³¸ì ì¸ ì´í™íŠ¸ 
+        External, // ì™¸ë¶€(ì¥íŒìŠ¤í‚¬)ì—ì„œ ì´í™íŠ¸ë¥¼ ê´€ë¦¬(ì§€ì†ì‹œê°„ì— ì˜í–¥ì„ ë°›ì§€ì•ŠìŒ)
     }
 
     public enum EffectClearTypes
     {
-        TimeOut, // ½Ã°£ÃÊ°ú·Î ÀÎÇÑ Effect Á¾·á
-        ClearSkill, // Á¤È­ ½ºÅ³·Î ÀÎÇÑ Effect Á¾·á
-        TriggerOutAoE, // AoE½ºÅ³À» ¹ş¾î³­ Á¾·á
-        EndOfAirborne, // ¿¡¾îº»ÀÌ ³¡³­ °æ¿ì È£ÃâµÇ´Â Á¾·á
+        TimeOut, // ì‹œê°„ì´ˆê³¼ë¡œ ì¸í•œ Effect ì¢…ë£Œ
+        ClearSkill, // ì •í™” ìŠ¤í‚¬ë¡œ ì¸í•œ Effect ì¢…ë£Œ
+        TriggerOutAoE, // AoEìŠ¤í‚¬ì„ ë²—ì–´ë‚œ ì¢…ë£Œ
+        EndOfAirborne, // ì—ì–´ë³¸ì´ ëë‚œ ê²½ìš° í˜¸ì¶œë˜ëŠ” ì¢…ë£Œ
     }
 
     public enum EffectClassNames
@@ -249,6 +249,83 @@ public static class Define
 
         HealthPotion,
         ManaPotion,
+    }
+
+    public enum EquipSlotTypes
+    {
+        None,
+        Weapon = 1,
+        Helmet = 2,
+        Armor = 3,
+        Shield = 4,
+        Gloves = 5,
+        Shoes = 6,
+        EquipMax,
+
+        Inventory = 100,
+        WareHouse = 200,
+    }
+
+    public enum QuestPeriodTypes
+    {
+        Once, // ë‹¨ë°œì„±
+        //Periodic, // ì£¼ê¸°ì ìœ¼ë¡œ 
+        Daily,
+        Weekly,
+        Infinite, // ë¬´í•œìœ¼ë¡œ
+    }
+
+    public enum QuestConditions
+    {
+        None,
+        Level,
+        ItemLevel,
+    }
+
+    public enum QuestTaskTypes
+    {
+        KillMonster,
+        EarnMeat,
+        SpendMeat,
+        EarnWood,
+        SpendWood,
+        EarnMineral,
+        SpendMineral,
+        EarnGold,
+        SpendGold,
+
+
+        UseItem,
+        Survival,
+    }
+
+    public enum QuestRewardTypes
+    {
+        Hero,
+        Gold,
+        Mineral,
+        Meat,
+        Wood,
+        Item,
+    }
+
+    public enum QuestStates
+    {
+        None,
+        Processing,
+        Completed,
+        Rewarded,
+    }
+
+    public enum BroadcastEventTypes
+    {
+        None,
+        ChangeMeat,
+        ChangeWood,
+        ChangeMineral,
+        ChangeGold,
+        KillMonster,
+        LevelUp,
     }
 
     public const float EFFECT_SMALL_RADIUS = 2.5f;
